@@ -15,11 +15,9 @@ services:
   # TODO: add healthcheck
   dev-kms-blockchain-validator:
     image: ghcr.io/zama-ai/kms-blockchain-asc-dev:${DOCKER_IMAGES_TAG}
-    volumes:
-      - ../asc/asc.wasm:/app/asc.wasm
-      - ../asc/ethereum_ipsc.wasm:/app/ethereum_ipsc.wasm
-      - ../asc/bootstrap_asc_threshold.sh:/app/bootstrap.sh
 
+    environment:
+      - MODE=centralized
     build:
       context: .
       dockerfile: blockchain/contracts/operations/docker/dev.dockerfile
