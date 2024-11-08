@@ -91,7 +91,7 @@ services:
     command:
       - "kms-blockchain-connector"
     environment:
-      - ASC_CONN__BLOCKCHAIN__CONTRACT=wasm1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrqr5j2ht
+      - ASC_CONN__BLOCKCHAIN__CONTRACT=wasm1cnuw3f076wgdyahssdkd0g3nr96ckq8cwa2mh029fn5mgf2fmcms9ax00l
       - RUST_LOG=info
       - ASC_CONN__BLOCKCHAIN__ADDRESSES=http://dev-kms-blockchain-validator:9090
       - ASC_CONN__CORE__ADDRESSES=http://dev-kms-core-1:50100
@@ -135,7 +135,7 @@ services:
     command:
       - "kms-blockchain-connector"
     environment:
-      - ASC_CONN__BLOCKCHAIN__CONTRACT=wasm1nc5tatafv6eyq7llkr2gv50ff9e22mnf70qgjlv737ktmt4eswrqr5j2ht
+      - ASC_CONN__BLOCKCHAIN__CONTRACT=wasm1cnuw3f076wgdyahssdkd0g3nr96ckq8cwa2mh029fn5mgf2fmcms9ax00l
       - RUST_LOG=info
       - ASC_CONN__BLOCKCHAIN__ADDRESSES=http://dev-kms-blockchain-validator:9090
       - ASC_CONN__CORE__ADDRESSES=http://dev-kms-core-2:50200
