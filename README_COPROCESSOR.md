@@ -218,4 +218,6 @@ _Optionally_ you may update `KEY_GEN` value in `.env`. Default is `false`
 
     ```bash
     npx hardhat test --grep 'test async decrypt uint64 non-trivial'
+    npx hardhat test --grep 'test async decrypt addition uint64 non-trivial'
+    npx hardhat test --grep 'test async decrypt addition uint64 non-trivial bigger value'
     ```
