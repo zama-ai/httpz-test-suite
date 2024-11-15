@@ -33,12 +33,12 @@ check_os:
 
 # This version must the same as in docker-compose-full.yml
 # TODO add check
-KMS_DEV_VERSION ?= v0.9.0-rc20
+KMS_DEV_VERSION ?= $(DOCKER_IMAGES_TAG)
 
 FHEVM_SOLIDITY_REPO ?= fhevm
 FHEVM_SOLIDITY_PATH ?= $(WORKDIR)/$(FHEVM_SOLIDITY_REPO)
 FHEVM_SOLIDITY_PATH_EXISTS := $(shell test -d $(FHEVM_SOLIDITY_PATH)/.git && echo "true" || echo "false")
-FHEVM_SOLIDITY_VERSION ?= mano/update-to-latest-fhevm
+FHEVM_SOLIDITY_VERSION ?= feat/non-trivial-multiple
 COPROCESSOR_REPO ?= fhevm-backend
 COPROCESSOR_PATH ?= $(WORKDIR)/$(COPROCESSOR_REPO)
 COPROCESSOR_PATH_EXISTS := $(shell test -d $(COPROCESSOR_PATH)/.git && echo "true" || echo "false")
@@ -91,21 +91,26 @@ clone-coprocessor: $(WORKDIR)/
 	cd $(WORKDIR) && git clone git@github.com:zama-ai/fhevm-backend.git
 	cd $(COPROCESSOR_PATH) && git checkout $(COPROCESSOR_VERSION)
 
-run-coprocessor: $(WORKDIR)/ check-coprocessor check-all-test-repo
+
+init-db: check-all-test-repo  check-coprocessor 
 ifeq ($(CENTRALIZED_KMS),false)
 	@echo "CENTRALIZED_KMS is false, we are extracting keys from kms-core-1"
-	$(MAKE) copy-keys-threshold
-	
+	$(MAKE) copy-keys-threshold-key-gen
 else ifeq ($(CENTRALIZED_KMS),true)
 	@echo "CENTRALIZED_KMS is true, copying fhe keys from dev image"
-	$(MAKE) generate-fhe-keys-registry-dev-image
+	$(MAKE) copy-keys-centralized-key-gen
 else
 	@echo "CENTRALIZED_KMS is set to an unrecognized value: $(CENTRALIZED_KMS)"
 endif
 	cp -v network-fhe-keys/* $(COPROCESSOR_PATH)/fhevm-engine/fhevm-keys
+	cd $(COPROCESSOR_PATH)/fhevm-engine/coprocessor && make init
+
+
+
+run-coprocessor: $(WORKDIR)/ check-coprocessor check-all-test-repo
 	cd $(COPROCESSOR_PATH)/fhevm-engine/coprocessor && make cleanup
 	cd $(COPROCESSOR_PATH)/fhevm-engine/coprocessor && cargo install sqlx-cli
-	cd $(COPROCESSOR_PATH)/fhevm-engine/coprocessor && make init_db
+	cd $(COPROCESSOR_PATH)/fhevm-engine/coprocessor && make run
 
 stop-coprocessor: $(WORKDIR)/ 
 	cd $(COPROCESSOR_PATH)/fhevm-engine/coprocessor && make cleanup
@@ -145,7 +150,15 @@ endif
 
 copy-keys-threshold:
 	@bash ./scripts/copy_fhe_keys_threshold.sh zama-kms-threshold-dev-kms-core-1-1 $(PWD)/network-fhe-keys
-	@bash ./scripts/update_signers.sh $(PWD)/work_dir/fhevm/.env.example.deployment $(PWD)/network-fhe-keys 
+	@bash ./scripts/update_signers.sh $(PWD)/work_dir/fhevm/.env.example.deployment $(PWD)/network-fhe-keys
+
+copy-keys-threshold-key-gen:
+	@bash ./scripts/copy_fhe_keys_threshold_key_gen.sh $(PWD)/network-fhe-keys
+	@bash ./scripts/update_signers.sh $(PWD)/work_dir/fhevm/.env.example.deployment $(PWD)/network-fhe-keys 4
+
+copy-keys-centralized-key-gen:
+	@bash ./scripts/copy_fhe_keys_centralized_key_gen.sh $(PWD)/network-fhe-keys
+	@bash ./scripts/update_signers.sh $(PWD)/work_dir/fhevm/.env.example.deployment $(PWD)/network-fhe-keys 1
 
 run-full:
 	@echo "Running kms"
@@ -163,39 +176,50 @@ stop-full:
 	$(MAKE) stop-coprocessor
 
 
+trigger-key-gen-threshold:
+	cargo run --bin simulator -- -f config/local_threshold.toml insecure-key-gen
+
+trigger-crs-gen-threshold:
+	cargo run --bin simulator -- -f config/local_threshold.toml crs-gen --max-num-bits 256
 
 run-kms-threshold:
-	docker compose -vvv -f docker-compose/docker-compose-kms-base.yml -f docker-compose/docker-compose-kms-threshold.yml -f docker-compose/docker-compose-kms-threshold-ghcr.yml up -d --wait
+	docker compose -vvv -f docker-compose/docker-compose-kms-base.yml -f docker-compose/docker-compose-kms-threshold.yml up -d --wait
+
+run-kms-threshold-with-gateway:
+	docker compose -vvv -f docker-compose/docker-compose-kms-base.yml -f docker-compose/docker-compose-kms-threshold.yml -f docker-compose/docker-compose-kms-gateway-threshold.yml -f docker-compose/docker-compose-coprocesor.yml up -d --wait
 
 stop-kms-threshold:
 	docker compose -vvv -f docker-compose/docker-compose-kms-base.yml -f docker-compose/docker-compose-kms-threshold.yml down --volumes --remove-orphans
 
-
 run-kms-centralized:
-	$(MAKE) generate-fhe-keys-registry-dev-image
-ifeq ($(KEY_GEN),false)
-	@echo "KEY_GEN is false, executing corresponding commands..."
-	@docker compose  -f docker-compose/docker-compose-full.yml  up --detach
-else ifeq ($(KEY_GEN),true)
-	@echo "KEY_GEN is true, mounting fhe keys into kms-core..."
-	@docker compose  -f docker-compose/docker-compose-full.yml -f docker-compose/docker-compose-full.override.yml up --detach
-else
-	@echo "KEY_GEN is set to an unrecognized value: $(KEY_GEN)"
-endif
+	docker compose -vvv -f docker-compose/docker-compose-kms-base.yml -f docker-compose/docker-compose-kms-centralized.yml up -d --wait
 
-	@echo 'sleep a little to let the docker start up'
-	sleep 5
+stop-kms-centralized:
+	docker compose -vvv -f docker-compose/docker-compose-kms-base.yml -f docker-compose/docker-compose-kms-centralized.yml down
+
+
+run-kms-centralized-with-gateway:
+	docker compose -vvv -f docker-compose/docker-compose-kms-base.yml -f docker-compose/docker-compose-kms-centralized.yml -f docker-compose/docker-compose-kms-gateway-centralized.yml -f docker-compose/docker-compose-coprocesor.yml up -d --wait
+
+
+stop-kms-centralized-with-gateway:
+	docker compose -vvv -f docker-compose/docker-compose-kms-base.yml -f docker-compose/docker-compose-kms-centralized.yml -f docker-compose/docker-compose-kms-gateway-centralized.yml -f docker-compose/docker-compose-coprocesor.yml down -v
+
+
+stop-kms-threshold-with-gateway:
+	docker compose -vvv -f docker-compose/docker-compose-kms-base.yml -f docker-compose/docker-compose-kms-threshold.yml -f docker-compose/docker-compose-kms-gateway-threshold.yml -f docker-compose/docker-compose-coprocesor.yml down -v
+
 
 run-kms:
 ifeq ($(CENTRALIZED_KMS),true)
 	@echo "CENTRALIZED_KMS is true, running centralized KMS...."
 	sleep 2
-	$(MAKE) run-kms-centralized
+	$(MAKE) run-kms-centralized-with-gateway
 	
 else ifeq ($(CENTRALIZED_KMS),false)
 	@echo "CENTRALIZED_KMS is false, running threshold KMS...."
 	sleep 2
-	$(MAKE) run-kms-threshold
+	$(MAKE) run-kms-threshold-with-gateway
 else
 	@echo "CENTRALIZED_KMS is set to an unrecognized value: $(CENTRALIZED_KMS)"
 endif
@@ -205,11 +229,11 @@ endif
 stop-kms:
 ifeq ($(CENTRALIZED_KMS),true)
 	@echo "CENTRALIZED_KMS is true, Stopping centralized KMS...."
-	@docker compose  -f docker-compose/docker-compose-full.yml down
+	$(MAKE) stop-kms-centralized-with-gateway
 	
 else ifeq ($(CENTRALIZED_KMS),false)
 	@echo "CENTRALIZED_KMS is false, Stopping threshold KMS...."
-	$(MAKE) stop-kms-threshold
+	$(MAKE) stop-kms-threshold-with-gateway
 else
 	@echo "CENTRALIZED_KMS is set to an unrecognized value: $(CENTRALIZED_KMS)"
 endif
@@ -273,3 +297,8 @@ print-info:
 	@echo 'KMS_DEV_VERSION: $(KMS_DEV_VERSION) for KEY_GEN---extracted from Makefile'
 	@echo 'FHEVM_SOLIDITY_VERSION: $(FHEVM_SOLIDITY_VERSION) ---extracted from Makefile'
 	@bash scripts/get_repository_info.sh fhevm $(FHEVM_SOLIDITY_PATH)
+
+
+
+run-gw: 
+	@docker compose -vvv -f docker-compose/docker-compose-kms-base.yml -f docker-compose/docker-compose-kms-centralized.yml -f docker-compose/docker-compose-kms-gateway-centralized.yml up dev-kms-gateway
