@@ -92,7 +92,7 @@ clone-coprocessor: $(WORKDIR)/
 	cd $(COPROCESSOR_PATH) && git checkout $(COPROCESSOR_VERSION)
 
 
-init-db:
+init-db: check-all-test-repo  check-coprocessor 
 ifeq ($(CENTRALIZED_KMS),false)
 	@echo "CENTRALIZED_KMS is false, we are extracting keys from kms-core-1"
 	$(MAKE) copy-keys-threshold-key-gen
@@ -186,7 +186,7 @@ run-kms-threshold:
 	docker compose -vvv -f docker-compose/docker-compose-kms-base.yml -f docker-compose/docker-compose-kms-threshold.yml up -d --wait
 
 run-kms-threshold-with-gateway:
-	docker compose -vvv -f docker-compose/docker-compose-kms-base.yml -f docker-compose/docker-compose-kms-threshold.yml -f docker-compose/docker-compose-kms-gateway-threshold.yml up -d --wait
+	docker compose -vvv -f docker-compose/docker-compose-kms-base.yml -f docker-compose/docker-compose-kms-threshold.yml -f docker-compose/docker-compose-kms-gateway-threshold.yml -f docker-compose/docker-compose-coprocesor.yml up -d --wait
 
 stop-kms-threshold:
 	docker compose -vvv -f docker-compose/docker-compose-kms-base.yml -f docker-compose/docker-compose-kms-threshold.yml down --volumes --remove-orphans
@@ -199,15 +199,15 @@ stop-kms-centralized:
 
 
 run-kms-centralized-with-gateway:
-	docker compose -vvv -f docker-compose/docker-compose-kms-base.yml -f docker-compose/docker-compose-kms-centralized.yml -f docker-compose/docker-compose-kms-gateway-centralized.yml up -d --wait
+	docker compose -vvv -f docker-compose/docker-compose-kms-base.yml -f docker-compose/docker-compose-kms-centralized.yml -f docker-compose/docker-compose-kms-gateway-centralized.yml -f docker-compose/docker-compose-coprocesor.yml up -d --wait
 
 
 stop-kms-centralized-with-gateway:
-	docker compose -vvv -f docker-compose/docker-compose-kms-base.yml -f docker-compose/docker-compose-kms-centralized.yml -f docker-compose/docker-compose-kms-gateway-centralized.yml down
+	docker compose -vvv -f docker-compose/docker-compose-kms-base.yml -f docker-compose/docker-compose-kms-centralized.yml -f docker-compose/docker-compose-kms-gateway-centralized.yml -f docker-compose/docker-compose-coprocesor.yml down -v
 
 
 stop-kms-threshold-with-gateway:
-	docker compose -vvv -f docker-compose/docker-compose-kms-base.yml -f docker-compose/docker-compose-kms-threshold.yml -f docker-compose/docker-compose-kms-gateway-threshold.yml down
+	docker compose -vvv -f docker-compose/docker-compose-kms-base.yml -f docker-compose/docker-compose-kms-threshold.yml -f docker-compose/docker-compose-kms-gateway-threshold.yml -f docker-compose/docker-compose-coprocesor.yml down -v
 
 
 run-kms:
@@ -297,3 +297,8 @@ print-info:
 	@echo 'KMS_DEV_VERSION: $(KMS_DEV_VERSION) for KEY_GEN---extracted from Makefile'
 	@echo 'FHEVM_SOLIDITY_VERSION: $(FHEVM_SOLIDITY_VERSION) ---extracted from Makefile'
 	@bash scripts/get_repository_info.sh fhevm $(FHEVM_SOLIDITY_PATH)
+
+
+
+run-gw: 
+	@docker compose -vvv -f docker-compose/docker-compose-kms-base.yml -f docker-compose/docker-compose-kms-centralized.yml -f docker-compose/docker-compose-kms-gateway-centralized.yml up dev-kms-gateway
