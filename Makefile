@@ -86,7 +86,7 @@ else
 	$(MAKE) clone-fhevm-solidity
 endif
 
-clone-coprocessor: $(WORKDIR)/ 
+clone-coprocessor: $(WORKDIR)/
 	$(info Cloning coprocessor version $(COPROCESSOR_VERSION))
 	cd $(WORKDIR) && git clone git@github.com:zama-ai/fhevm-backend.git
 	cd $(COPROCESSOR_PATH) && git checkout $(COPROCESSOR_VERSION)
@@ -112,7 +112,7 @@ run-coprocessor: $(WORKDIR)/ check-coprocessor check-all-test-repo
 	cd $(COPROCESSOR_PATH)/fhevm-engine/coprocessor && cargo install sqlx-cli
 	cd $(COPROCESSOR_PATH)/fhevm-engine/coprocessor && make run
 
-stop-coprocessor: $(WORKDIR)/ 
+stop-coprocessor: $(WORKDIR)/
 	cd $(COPROCESSOR_PATH)/fhevm-engine/coprocessor && make cleanup
 
 
