@@ -10,7 +10,7 @@ mkdir -p ../work_dir
 mkdir -p ../network-keys
 
 # Run KMS and GW
-sudo docker compose -vvv -f ../docker-compose/docker-compose-kms-base.yml \
+sudo docker compose -vvv --env-file ../.env -f ../docker-compose/docker-compose-kms-base.yml \
     -f ../docker-compose/docker-compose-kms-centralized.yml \
     -f ../docker-compose/docker-compose-kms-gateway-centralized.yml \
     -f ../docker-compose/docker-compose-coprocesor.yml up \
