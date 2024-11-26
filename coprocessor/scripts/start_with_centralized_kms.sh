@@ -6,7 +6,8 @@ set -e
 export $(cat ../.env | xargs)
 
 export FHEVM_SOLIDITY_PATH=/home/petar/zama/zbc-solidity
-mkdir -p ../work_dir
+
+# Create directories.
 mkdir -p ../network-keys
 
 # Run KMS and GW
@@ -21,7 +22,7 @@ sleep 4
 
 # Copy keys.
 bash ./copy_fhe_keys_centralized_key_gen.sh ../network-fhe-keys
-bash ./update_signers.sh ../work_dir/fhevm/.env.example.deployment ../network-fhe-keys 1
+bash ./update_signers.sh $FHEVM_SOLIDITY_PATH/.env.example.deployment ../network-fhe-keys 1
 
 # Insert keys.
 COMPOSE_PROJECT_NAME=zama-kms-gateway sudo docker compose -vvv -f ../docker-compose/docker-compose-db-migration.yml up -d --wait
