@@ -13,8 +13,8 @@ mkdir -p ../network-keys
 sudo docker compose -vvv --env-file ../.env -f ../docker-compose/docker-compose-kms-base.yml \
     -f ../docker-compose/docker-compose-kms-centralized.yml \
     -f ../docker-compose/docker-compose-kms-gateway-centralized.yml \
-    -f ../docker-compose/docker-compose-coprocesor.yml up \
-    -d --wait
+    -f ../docker-compose/docker-compose-coprocesor.yml \
+    up -d --wait
 
 # Wait a bit.
 sleep 4
