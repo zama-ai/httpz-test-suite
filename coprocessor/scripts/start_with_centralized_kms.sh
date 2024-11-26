@@ -2,10 +2,13 @@
 
 set -e
 
+export FHEVM_SOLIDITY_PATH=/home/petar/zama/zbc-solidity
+
 # Import env variables from the .env file.
 export $(cat ../.env | xargs)
 
-export FHEVM_SOLIDITY_PATH=/home/petar/zama/zbc-solidity
+# Clean fhevm openzeppelin.
+rm -rf $FHEVM_SOLIDITY_PATH/.openzeppelin
 
 # Create directories.
 mkdir -p ../network-keys
