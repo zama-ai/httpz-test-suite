@@ -2,6 +2,9 @@
 
 set -e
 
+# Import env variables from the .env file.
+export $(cat ../.env | xargs)
+
 export FHEVM_SOLIDITY_PATH=/home/petar/zama/zbc-solidity
 mkdir -p ../work_dir
 mkdir -p ../network-keys
