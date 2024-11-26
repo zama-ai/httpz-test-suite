@@ -4,12 +4,13 @@ set -e
 
 export FHEVM_SOLIDITY_PATH=/home/petar/zama/zbc-solidity
 mkdir -p ../work_dir
+mkdir -p ../network-keys
 
 # Run KMS and GW
-sudo docker compose -vvv -f docker-compose/docker-compose-kms-base.yml \
-    -f docker-compose/docker-compose-kms-centralized.yml \
-    -f docker-compose/docker-compose-kms-gateway-centralized.yml \
-    -f docker-compose/docker-compose-coprocesor.yml up \
+sudo docker compose -vvv -f ../docker-compose/docker-compose-kms-base.yml \
+    -f ../docker-compose/docker-compose-kms-centralized.yml \
+    -f ../docker-compose/docker-compose-kms-gateway-centralized.yml \
+    -f ../docker-compose/docker-compose-coprocesor.yml up \
     -d --wait
 
 # Wait a bit.
@@ -20,7 +21,7 @@ bash ./copy_fhe_keys_centralized_key_gen.sh ../network-fhe-keys
 bash ./update_signers.sh ../work_dir/fhevm/.env.example.deployment ../network-fhe-keys 1
 
 # Insert keys.
-COMPOSE_PROJECT_NAME=zama-kms-gateway sudo docker compose -vvv -f docker-compose/docker-compose-db-migration.yml up -d --wait
+COMPOSE_PROJECT_NAME=zama-kms-gateway sudo docker compose -vvv -f ../docker-compose/docker-compose-db-migration.yml up -d --wait
 
 # Fund test addresses.
 sudo $FHEVM_SOLIDITY_PATH/fund_test_addresses_docker.sh
