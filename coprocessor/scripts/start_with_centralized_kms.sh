@@ -13,7 +13,7 @@ rm -rf $FHEVM_SOLIDITY_PATH/.openzeppelin
 # Create directories.
 mkdir -p ../network-keys
 
-# Run KMS and GW
+# Run KMS, GW, coprocessor and geth.
 sudo docker compose -vvv --env-file ../.env -f ../docker-compose/docker-compose-kms-base.yml \
     -f ../docker-compose/docker-compose-kms-centralized.yml \
     -f ../docker-compose/docker-compose-kms-gateway-centralized.yml \
