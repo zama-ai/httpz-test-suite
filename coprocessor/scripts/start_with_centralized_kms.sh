@@ -7,9 +7,6 @@ export FHEVM_SOLIDITY_PATH=/home/petar/zama/zbc-solidity
 # Import env variables from the .env file.
 export $(cat ../.env | xargs)
 
-# Clean fhevm openzeppelin.
-rm -rf $FHEVM_SOLIDITY_PATH/.openzeppelin
-
 # Create directories.
 mkdir -p ../network-keys
 
@@ -29,6 +26,11 @@ bash ./update_signers.sh $FHEVM_SOLIDITY_PATH/.env.example.deployment ../network
 
 # Insert keys.
 sudo COMPOSE_PROJECT_NAME=zama-kms-gateway docker compose -vvv -f ../docker-compose/docker-compose-db-migration.yml up -d --wait
+
+cp $FHEVM_SOLIDITY_PATH/.env.example.deployment $FHEVM_SOLIDITY_PATH/.env
+
+# Clean fhevm openzeppelin.
+rm -rf $FHEVM_SOLIDITY_PATH/.openzeppelin
 
 # Fund test addresses.
 sudo $FHEVM_SOLIDITY_PATH/fund_tests_addresses_docker.sh
