@@ -28,7 +28,7 @@ bash ./update_signers.sh $FHEVM_SOLIDITY_PATH/.env.example.deployment ../network
 COMPOSE_PROJECT_NAME=zama-kms-gateway sudo docker compose -vvv -f ../docker-compose/docker-compose-db-migration.yml up -d --wait
 
 # Fund test addresses.
-sudo $FHEVM_SOLIDITY_PATH/fund_test_addresses_docker.sh
+sudo $FHEVM_SOLIDITY_PATH/fund_tests_addresses_docker.sh
 
 # Precompute addresses.
 cd $FHEVM_SOLIDITY_PATH && ./precompute-addresses.sh
