@@ -24,7 +24,7 @@ services:
       - --server-addr=0.0.0.0:50052
       - --coprocessor-private-key=/usr/share/coprocessor.key
   geth:
-    image: ghcr.io/zama-ai/geth-coprocessor-devnode:v0.1.0
+    image: ghcr.io/zama-ai/go-ethereum-coprocessor-dev:v0.1.0
     volumes:
       - ../blockchain/geth/entrypoint.sh:/entrypoint.sh
     environment:
