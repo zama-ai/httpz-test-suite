@@ -25,7 +25,7 @@ bash ./copy_fhe_keys_centralized_key_gen.sh ../network-fhe-keys
 bash ./update_signers.sh $FHEVM_SOLIDITY_PATH/.env.example.deployment ../network-fhe-keys 1
 
 # Insert keys.
-sudo COMPOSE_PROJECT_NAME=zama-kms-gateway docker compose -vvv -f ../docker-compose/docker-compose-db-migration.yml up -d --wait || true
+sudo COMPOSE_PROJECT_NAME=zama-kms-gateway docker compose -vvv -f ../docker-compose/docker-compose-db-migration.yml up -d --wait
 
 # Fund test addresses.
 sudo $FHEVM_SOLIDITY_PATH/fund_tests_addresses_docker.sh
