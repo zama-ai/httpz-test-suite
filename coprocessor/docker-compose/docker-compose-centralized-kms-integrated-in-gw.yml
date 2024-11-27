@@ -25,7 +25,7 @@ services:
       dev-kms-simulator-keygen:
         condition: service_completed_successfully
 
-    image: kms-in-gw:v0.1.0
+    image: kms-in-gw:v0.9.0-rc34
     build:
       context: .
       dockerfile: blockchain/gateway/operations/docker/local.dockerfile
