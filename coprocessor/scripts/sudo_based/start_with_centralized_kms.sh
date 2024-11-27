@@ -6,7 +6,7 @@ set -e
 export $(cat .env | xargs)
 
 # Create directories.
-mkdir -p ../../network-keys
+mkdir -p ../../network-fhe-keys
 
 # Run KMS, GW, coprocessor and geth.
 sudo docker compose -vvv --env-file .env -f ../../docker-compose/docker-compose-kms-base.yml \
@@ -19,8 +19,8 @@ sudo docker compose -vvv --env-file .env -f ../../docker-compose/docker-compose-
 sleep 4
 
 # Copy keys.
-bash ../copy_fhe_keys_centralized_key_gen.sh ../../network-fhe-keys
-bash ../update_signers.sh $FHEVM_SOLIDITY_PATH/.env.example.deployment ../../network-fhe-keys 1
+../copy_fhe_keys_centralized_key_gen.sh "../../network-fhe-keys"
+../update_signers.sh $FHEVM_SOLIDITY_PATH/.env.example.deployment ../../network-fhe-keys 1
 
 # Insert keys.
 sudo COMPOSE_PROJECT_NAME=zama-kms-gateway docker compose -vvv -f ../../docker-compose/docker-compose-db-migration.yml up -d --wait
