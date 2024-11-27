@@ -11,7 +11,7 @@ mkdir -p ../../network-fhe-keys
 # Run KMS, GW, coprocessor and geth.
 sudo docker compose -vvv --env-file .env -f ../../docker-compose/docker-compose-kms-base.yml \
     -f ../../docker-compose/docker-compose-kms-centralized.yml \
-    -f ../../docker-compose/docker-compose-kms-gateway-centralized.yml \
+    -f ../../docker-compose/docker-compose-centralized-kms-integrated-in-gw.yml \
     -f ../../docker-compose/docker-compose-coprocesor.yml \
     up -d --wait
 
@@ -23,7 +23,7 @@ sleep 4
 ../update_signers.sh $FHEVM_SOLIDITY_PATH/.env.example.deployment ../../network-fhe-keys 1
 
 # Insert keys.
-sudo COMPOSE_PROJECT_NAME=zama-kms-gateway docker compose -vvv -f ../../docker-compose/docker-compose-db-migration.yml up -d --wait
+sudo docker compose -vvv -f ../../docker-compose/docker-compose-db-migration.yml up -d --wait
 
 cp $FHEVM_SOLIDITY_PATH/.env.example.deployment $FHEVM_SOLIDITY_PATH/.env
 

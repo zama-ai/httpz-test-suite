@@ -1,0 +1,42 @@
+name: zama-kms-gateway
+
+services:
+  # 5. Launch key-gen
+  # TODO: store gateway config in volume and modify it with key-id
+  dev-kms-simulator-keygen:
+    image: ghcr.io/zama-ai/kms-blockchain-simulator:${DOCKER_IMAGES_TAG}
+    build:
+      context: .
+      dockerfile: blockchain/simulator/operations/docker/ci.dockerfile
+    depends_on:
+      dev-kms-blockchain-asc-deploy:
+        condition: service_completed_successfully
+    environment:
+      - RUST_LOG=info
+    entrypoint: >
+      /bin/sh -c " sleep 2 && echo \"Launching insecure key-gen\" && simulator -f /app/config/local_centralized_from_compose.toml insecure-key-gen && echo \"Launching crs-gen\" && simulator -f /app/config/local_centralized_from_compose.toml insecure-crs-gen --max-num-bits 2048 && echo \"Success\" "
+    volumes:
+      - ../blockchain/simulator/config:/app/config
+
+  # 6. Start gateway with key-id from key-gen
+  # TODO: 
+  dev-kms-gateway:
+    depends_on:
+      dev-kms-simulator-keygen:
+        condition: service_completed_successfully
+
+    image: kms-in-gw:v0.1.0
+    build:
+      context: .
+      dockerfile: blockchain/gateway/operations/docker/local.dockerfile
+    ports:
+      - "7077:7077"
+    entrypoint: >
+      /bin/sh -c "gateway"
+    volumes:
+      - ../blockchain/gateway/config/connector.toml:/app/gateway/config/connector.toml
+      - ../blockchain/gateway/config/gateway_centralized.toml:/app/gateway/config/gateway.toml
+      - minio_secrets:/minio_secrets
+      - ../core/service/config/:/app/kms/core/service/config
+    environment:
+      - RUST_BACKTRACE=1
