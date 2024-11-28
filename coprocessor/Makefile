@@ -154,7 +154,16 @@ stop-kms-threshold:
 	docker compose -vvv -f docker-compose/docker-compose-kms-base.yml -f docker-compose/docker-compose-kms-threshold.yml down --volumes --remove-orphans
 
 run-kms-centralized:
-	docker compose -vvv -f docker-compose/docker-compose-kms-base.yml -f docker-compose/docker-compose-kms-centralized.yml up -d --wait
+	docker compose -vvv -p zama-kms-gateway -f docker-compose/docker-compose-kms-base.yml -f docker-compose/docker-compose-kms-centralized.yml up -d --wait
+
+run-coprocesor:
+	docker compose -vvv -p zama-kms-gateway -f docker-compose/docker-compose-coprocesor.yml up -d --wait
+
+run-gateway-centralized:
+	docker compose -vvv -p zama-kms-gateway -f docker-compose/docker-compose-kms-gateway-centralized.yml up -d --wait
+
+run-simulator-centralized:
+	docker compose -vvv -p zama-kms-gateway -f docker-compose/docker-compose-kms-simulator-centralized.yml up -d --wait
 
 stop-kms-centralized:
 	docker compose -vvv -f docker-compose/docker-compose-kms-base.yml -f docker-compose/docker-compose-kms-centralized.yml down
