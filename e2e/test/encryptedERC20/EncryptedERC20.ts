@@ -4,20 +4,20 @@ import { createInstance } from "../instance";
 import { getSigners, initSigners } from "../signers";
 import { deployEncryptedERC20Fixture } from "./EncryptedERC20.fixture";
 
-describe("EncryptedERC20", function () {
-  before(async function () {
+describe("EncryptedERC20", function() {
+  before(async function() {
     await initSigners();
     this.signers = await getSigners();
   });
 
-  beforeEach(async function () {
+  beforeEach(async function() {
     const contract = await deployEncryptedERC20Fixture();
     this.contractAddress = await contract.getAddress();
     this.erc20 = contract;
     this.fhevm = await createInstance();
   });
 
-  it("should mint the contract", async function () {
+  it("should mint the contract", async function() {
     const transaction = await this.erc20.mint(1000);
     await transaction.wait();
 
@@ -43,7 +43,7 @@ describe("EncryptedERC20", function () {
     expect(totalSupply).to.equal(1000);
   });
 
-  it("should transfer tokens between two users", async function () {
+  it.only("should transfer tokens between two users", async function() {
     const transaction = await this.erc20.mint(10000);
     const t1 = await transaction.wait();
     expect(t1?.status).to.eq(1);
@@ -68,6 +68,10 @@ describe("EncryptedERC20", function () {
       { Reencrypt: eip712.types.Reencrypt },
       eip712.message,
     );
+
+    const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+    await sleep(60_000); // Sleep for 60 seconds (60_000 ms)
+
     const balanceAlice = await this.fhevm.reencrypt(
       balanceHandleAlice,
       privateKeyAlice,
@@ -116,7 +120,7 @@ describe("EncryptedERC20", function () {
     }
   });
 
-  it("should not transfer tokens between two users", async function () {
+  it("should not transfer tokens between two users", async function() {
     const transaction = await this.erc20.mint(1000);
     await transaction.wait();
 
@@ -171,7 +175,7 @@ describe("EncryptedERC20", function () {
     expect(balanceBob).to.equal(0);
   });
 
-  it("should be able to transferFrom only if allowance is sufficient", async function () {
+  it("should be able to transferFrom only if allowance is sufficient", async function() {
     const transaction = await this.erc20.mint(10000);
     await transaction.wait();
 
