@@ -16,6 +16,8 @@ services:
       - ../blockchain/gateway/config/connector.toml:/app/gateway/config/connector.toml
       - ../blockchain/gateway/config/gateway_centralized.toml:/app/gateway/config/gateway.toml
     environment:
+      - GATEWAY__KMS__KEY_ID=5e54482fff1bfa2f77532e7db10155de94b48387
+      - GATEWAY__KMS__CRS_ID=acbfc2686dc2fee442d8286fd85974b25a718249
       # - GATEWAY__ETHEREUM__LISTENER_TYPE=COPROCESSOR
       # - GATEWAY__ETHEREUM__MODE=centralized
       # - GATEWAY__ETHEREUM__CHAIN_ID=12345
