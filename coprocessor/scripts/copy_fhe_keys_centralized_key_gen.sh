@@ -3,8 +3,6 @@
 # Script to create keys by downloading from MinIO and copying them to the appropriate folder
 # Usage: ./copy_fhe_keys_threshold_key_gen.sh [LOCAL_BUILD_PUBLIC_KEY_PATH]
 
-set -Eeuo pipefail
-
 CURRENT_FOLDER=$PWD
 KEYS_FULL_PATH="$CURRENT_FOLDER/res/keys"
 mkdir -p "$KEYS_FULL_PATH"
@@ -18,19 +16,31 @@ fi
 
 mkdir -p "$NETWORK_KEYS_PUBLIC_PATH"
 
-# Get all the keys' info from the gateway
-if ! KEYS_URLS_JSON=$(curl -f http://localhost:7077/keyurl); then
-    echo "Error: Failed to get keys from gateway at http://localhost:7077/keyurl. Is gateway running?"
+MAX_RETRIES=30
+RETRIES=0
+while ((RETRIES < MAX_RETRIES)); do
+    if KEYS_URLS_JSON=$(curl -f http://localhost:7077/keyurl); then
+        echo "Info: Got Key URL JSON ${KEYS_URLS_JSON}"
+        break
+    else
+        echo "Warning: Failed to get keys from gateway at http://localhost:7077/keyurl. Retrying."
+        sleep 10
+        ((RETRIES++))
+    fi
+done
+
+if ((RETRIES == MAX_RETRIES)); then
+    echo "Error: Failed to get keys from gateway at http://localhost:7077/keyurl. Is the gateway running?"
     exit 1
 fi
+
+set -Eeuo pipefail
 
 # Get the URLs and extract the IDs
 PKS_URL=$(jq -r '.response.fhe_key_info[0].fhe_public_key.urls[0]' <<< "$KEYS_URLS_JSON")
 SKS_URL=$(jq -r '.response.fhe_key_info[0].fhe_server_key.urls[0]' <<< "$KEYS_URLS_JSON")
 CRS_URL=$(jq -r '.response.crs."2048".urls[0]' <<< "$KEYS_URLS_JSON")
 SIGNER1_URL=$(jq -r '.response.verf_public_key[0].verf_public_key_address' <<< "$KEYS_URLS_JSON")
-
-echo $KEYS_URLS_JSON
 
 # Extract only the ID part from each URL
 PKS_ID=$(basename "$PKS_URL")

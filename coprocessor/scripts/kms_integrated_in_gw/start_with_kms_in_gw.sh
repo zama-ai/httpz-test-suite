@@ -15,11 +15,13 @@ sudo docker compose -vvv --env-file .env -f ../../docker-compose/docker-compose-
     -f ../../docker-compose/docker-compose-coprocesor.yml \
     up -d --wait
 
-# Wait a bit.
+# Wait a bit (why? :)).
 sleep 4
 
 # Copy keys.
 ../copy_fhe_keys_centralized_key_gen.sh "../../network-fhe-keys"
+
+# Update signers.
 ../update_signers.sh $FHEVM_SOLIDITY_PATH/.env.example.deployment ../../network-fhe-keys 1
 
 # Insert keys.
