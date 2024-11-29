@@ -1,0 +1,49 @@
+{
+    "response": {
+        "crs": {
+            "2048": {
+                "data_id": "726e02b263b673d684def7377c98dfb53ee42480",
+                "param_choice": 1,
+                "signatures": [
+                    "400000000000000028944397581ccef6cd54793a491c25af3cf86e267ea50ae2c87a58664b958f3c0b6d6cf77e3ef982b52b362604f296bbd2997b97a268aa650bfbdc578c80f8a3"
+                ],
+                "urls": [
+                    "http://localhost:9000/kms/PUB/CRS/726e02b263b673d684def7377c98dfb53ee42480"
+                ]
+            }
+        },
+        "fhe_key_info": [
+            {
+                "fhe_public_key": {
+                    "data_id": "7f9f3643e3ebdffcf15f7aa501f4fae6695bf657",
+                    "param_choice": 1,
+                    "signatures": [
+                        "400000000000000070ba8d9e8bbc6c7da4630856ed218b5fee72e8e2ab18e44e2e646a7a940f64245d0ff3460317f40c8345f21439ad9b20d3daa66fda801b9063ddfb10027c7724"
+                    ],
+                    "urls": [
+                        "http://localhost:9000/kms/PUB/PublicKey/7f9f3643e3ebdffcf15f7aa501f4fae6695bf657"
+                    ]
+                },
+                "fhe_server_key": {
+                    "data_id": "7f9f3643e3ebdffcf15f7aa501f4fae6695bf657",
+                    "param_choice": 1,
+                    "signatures": [
+                        "40000000000000008fc4a99befd18a5c247179bf5f341c1cd933e290b4039301df2e493be5913d2117c509e1c699e87196e20c67e3f8459b2ad36a3282d15d6e77e6a134dde9e490"
+                    ],
+                    "urls": [
+                        "http://localhost:9000/kms/PUB/ServerKey/7f9f3643e3ebdffcf15f7aa501f4fae6695bf657"
+                    ]
+                }
+            }
+        ],
+        "verf_public_key": [
+            {
+                "key_id": "e164d9de0bec6656928726433cc56bef6ee8417a",
+                "server_id": 1,
+                "verf_public_key_address": "http://localhost:9000/kms/PUB/VerfAddress/e164d9de0bec6656928726433cc56bef6ee8417a",
+                "verf_public_key_url": "http://localhost:9000/kms/PUB/VerfKey/e164d9de0bec6656928726433cc56bef6ee8417a"
+            }
+        ]
+    },
+    "status": "success"
+}

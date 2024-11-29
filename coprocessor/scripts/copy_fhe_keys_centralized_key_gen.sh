@@ -30,6 +30,8 @@ SKS_URL=$(jq -r '.response.fhe_key_info[0].fhe_server_key.urls[0]' <<< "$KEYS_UR
 CRS_URL=$(jq -r '.response.crs."2048".urls[0]' <<< "$KEYS_URLS_JSON")
 SIGNER1_URL=$(jq -r '.response.verf_public_key[0].verf_public_key_address' <<< "$KEYS_URLS_JSON")
 
+echo $KEYS_URLS_JSON
+
 # Extract only the ID part from each URL
 PKS_ID=$(basename "$PKS_URL")
 SKS_ID=$(basename "$SKS_URL")
