@@ -84,25 +84,25 @@ echo "###########################################################"
 # Copy the required files to the specified public path
 echo "Copying keys to $NETWORK_KEYS_PUBLIC_PATH..."
 
-retry_until_success "http://localhost:9000/kms/${FILES_TO_DOWNLOAD[0]}" "$MAX_RETRIES" "$DELAY" "$NETWORK_KEYS_PUBLIC_PATH/pks"
+retry_until_success "$PKS_URL" "$MAX_RETRIES" "$DELAY" "$NETWORK_KEYS_PUBLIC_PATH/pks"
 if [[$? -ne 0]]; then
     echo "Error: Failed to get pks file"
     exit 1
 fi
 
-retry_until_success "http://localhost:9000/kms/${FILES_TO_DOWNLOAD[1]}" "$MAX_RETRIES" "$DELAY" "$NETWORK_KEYS_PUBLIC_PATH/sks"
+retry_until_success "$SKS_URL" "$MAX_RETRIES" "$DELAY" "$NETWORK_KEYS_PUBLIC_PATH/sks"
 if [[$? -ne 0]]; then
     echo "Error: Failed to get sks file"
     exit 1
 fi
 
-retry_until_success "http://localhost:9000/kms/${FILES_TO_DOWNLOAD[2]}" "$MAX_RETRIES" "$DELAY" "$NETWORK_KEYS_PUBLIC_PATH/pp"
+retry_until_success "$CRS_URL" "$MAX_RETRIES" "$DELAY" "$NETWORK_KEYS_PUBLIC_PATH/pp"
 if [[$? -ne 0]]; then
     echo "Error: Failed to get pp file"
     exit 1
 fi
 
-retry_until_success "http://localhost:9000/kms/${FILES_TO_DOWNLOAD[3]}" "$MAX_RETRIES" "$DELAY" "$NETWORK_KEYS_PUBLIC_PATH/signer1"
+retry_until_success "$SIGNER1_URL" "$MAX_RETRIES" "$DELAY" "$NETWORK_KEYS_PUBLIC_PATH/signer1"
 if [[$? -ne 0]]; then
     echo "Error: Failed to get signer1 file"
     exit 1
