@@ -17,24 +17,39 @@ fi
 mkdir -p "$NETWORK_KEYS_PUBLIC_PATH"
 
 MAX_RETRIES=30
-RETRIES=0
-while ((RETRIES < MAX_RETRIES)); do
-    if KEYS_URLS_JSON=$(curl -f http://localhost:7077/keyurl); then
-        echo "Info: Got Key URL JSON ${KEYS_URLS_JSON}"
-        break
-    else
-        echo "Warning: Failed to get keys from gateway at http://localhost:7077/keyurl. Retrying."
-        sleep 10
-        ((RETRIES++))
-    fi
-done
+DELAY=10
 
-if ((RETRIES == MAX_RETRIES)); then
+retry_until_success() {
+    local url=$1
+    local retries=$2
+    local delay=$3
+    local output_file=$4
+    local response=""
+
+    while ((retries > 0)); do
+        if [[ -n $output_file ]]; then
+            response=$(curl -f -o "$output_file" "$url")
+        else
+            response=$(curl -f "$url")
+        fi
+        if [[ $? -eq 0 ]]; then
+            echo $response
+            return 0
+        fi
+        ((retries--))
+        sleep "$delay"
+    done
+    return 1
+}
+
+KEYS_URLS_JSON=$(retry_until_success "http://localhost:7077/keyurl" "$MAX_RETRIES" "$DELAY")
+if [[ $? -ne 0 ]]; then
     echo "Error: Failed to get keys from gateway at http://localhost:7077/keyurl. Is the gateway running?"
     exit 1
 fi
 
-set -Eeuo pipefail
+echo $KEYS_URLS_JSON
+echo
 
 # Get the URLs and extract the IDs
 PKS_URL=$(jq -r '.response.fhe_key_info[0].fhe_public_key.urls[0]' <<< "$KEYS_URLS_JSON")
@@ -69,10 +84,29 @@ echo "###########################################################"
 # Copy the required files to the specified public path
 echo "Copying keys to $NETWORK_KEYS_PUBLIC_PATH..."
 
-curl -o "$NETWORK_KEYS_PUBLIC_PATH/pks" "http://localhost:9000/kms/${FILES_TO_DOWNLOAD[0]}"
-curl -o "$NETWORK_KEYS_PUBLIC_PATH/sks" "http://localhost:9000/kms/${FILES_TO_DOWNLOAD[1]}"
-curl -o "$NETWORK_KEYS_PUBLIC_PATH/pp"  "http://localhost:9000/kms/${FILES_TO_DOWNLOAD[2]}"
-curl -o "$NETWORK_KEYS_PUBLIC_PATH/signer1" "http://localhost:9000/kms/${FILES_TO_DOWNLOAD[3]}"
+retry_until_success "http://localhost:9000/kms/${FILES_TO_DOWNLOAD[0]}" "$MAX_RETRIES" "$DELAY" "$NETWORK_KEYS_PUBLIC_PATH/pks"
+if [[$? -ne 0]]; then
+    echo "Error: Failed to get pks file"
+    exit 1
+fi
+
+retry_until_success "http://localhost:9000/kms/${FILES_TO_DOWNLOAD[1]}" "$MAX_RETRIES" "$DELAY" "$NETWORK_KEYS_PUBLIC_PATH/sks"
+if [[$? -ne 0]]; then
+    echo "Error: Failed to get sks file"
+    exit 1
+fi
+
+retry_until_success "http://localhost:9000/kms/${FILES_TO_DOWNLOAD[2]}" "$MAX_RETRIES" "$DELAY" "$NETWORK_KEYS_PUBLIC_PATH/pp"
+if [[$? -ne 0]]; then
+    echo "Error: Failed to get pp file"
+    exit 1
+fi
+
+retry_until_success "http://localhost:9000/kms/${FILES_TO_DOWNLOAD[3]}" "$MAX_RETRIES" "$DELAY" "$NETWORK_KEYS_PUBLIC_PATH/signer1"
+if [[$? -ne 0]]; then
+    echo "Error: Failed to get signer1 file"
+    exit 1
+fi
 
 echo "###########################################################"
 echo "All keys have been copied to $NETWORK_KEYS_PUBLIC_PATH"
