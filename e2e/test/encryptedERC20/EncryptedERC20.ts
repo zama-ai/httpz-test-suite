@@ -43,7 +43,7 @@ describe("EncryptedERC20", function() {
     expect(totalSupply).to.equal(1000);
   });
 
-  it.only("should transfer tokens between two users", async function() {
+  it("should transfer tokens between two users", async function() {
     const transaction = await this.erc20.mint(10000);
     const t1 = await transaction.wait();
     expect(t1?.status).to.eq(1);
@@ -142,6 +142,11 @@ describe("EncryptedERC20", function() {
       { Reencrypt: eip712.types.Reencrypt },
       eip712.message,
     );
+
+
+    const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+    await sleep(60_000); // Sleep for 60 seconds (60_000 ms)
+
     const balanceAlice = await this.fhevm.reencrypt(
       balanceHandleAlice,
       privateKeyAlice,
@@ -210,6 +215,10 @@ describe("EncryptedERC20", function() {
       { Reencrypt: eip712.types.Reencrypt },
       eip712.message,
     );
+
+    const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+    await sleep(60_000); // Sleep for 60 seconds (60_000 ms)
+
     const balanceAlice = await this.fhevm.reencrypt(
       balanceHandleAlice,
       privateKeyAlice,
@@ -250,6 +259,8 @@ describe("EncryptedERC20", function() {
     );
     await tx3.wait();
 
+
+    await sleep(60_000); // Sleep for 60 seconds (60_000 ms)
     // Decrypt Alice's balance
     const balanceHandleAlice2 = await this.erc20.balanceOf(this.signers.alice);
     const balanceAlice2 = await this.fhevm.reencrypt(
