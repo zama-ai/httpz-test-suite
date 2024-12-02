@@ -108,6 +108,11 @@ address = "http://dev-kms-blockchain-validator:9090"
 # Identifies the specific key to be used for cryptographic operations within the KMS.
 key_id = "?"
 crs_id = "?"
+# key_id = "2ef4d058375fb68010abec4f8a4ee8402fa73df0"
+# crs_id = "ace57a4a0bb4f24862f2773df99a223ef98f2348"
+
+# GATEWAY__KMS__KEY_ID = "2ef4d058375fb68010abec4f8a4ee8402fa73df0"
+# GATEWAY__KMS__CRS_ID = "ace57a4a0bb4f24862f2773df99a223ef98f2348"
 
 # List of prefixed of URL endpoints for the public storage of the KMS.
 # The key in the map is the MPC ID of the party. I.e. [1; amount of parties]

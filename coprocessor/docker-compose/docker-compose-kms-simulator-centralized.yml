@@ -14,6 +14,7 @@ services:
       /bin/sh -c " sleep 2 && echo \"Launching insecure key-gen\" && simulator -f /app/config/local_centralized_from_compose.toml insecure-key-gen && echo \"Launching crs-gen\" && simulator -f /app/config/local_centralized_from_compose.toml insecure-crs-gen --max-num-bits 2048 && echo \"Success\" "
     volumes:
       - ../blockchain/simulator/config:/app/config
+      - ../blockchain/gateway/.env:/app/.env.gateway
 
   # 6. Start gateway with key-id from key-gen
   # TODO: 
