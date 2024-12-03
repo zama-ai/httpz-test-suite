@@ -24,9 +24,14 @@ jobs:
         docker --version
         node --version
 
-    - name: Execute run-everything.sh
-      id: run_script
+    - name: Check resources
       run: |
-        cd ./coprocessor/
-        ./scripts/run_everything.sh
-        docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
+        free -h
+        top -bn1 | grep "Cpu(s)"
+
+    # - name: Execute run-everything.sh
+    #   id: run_script
+    #   run: |
+    #     cd ./coprocessor/
+    #     ./scripts/run_everything.sh
+    #     docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
