@@ -8,6 +8,9 @@ export $(cat .env | xargs)
 # Create directories.
 mkdir -p ../../network-fhe-keys
 
+sudo docker container prune -f
+sudo docker network prune -f
+
 # Run KMS, GW, coprocessor and geth.
 sudo docker compose -vvv --env-file .env -f ../../docker-compose/docker-compose-s3-mock.yml \
     -f ../../docker-compose/docker-compose-centralized-kms-integrated-in-gw.yml \
