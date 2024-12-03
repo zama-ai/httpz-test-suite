@@ -5,6 +5,11 @@ on:
     branches:
       - ci/test-workflow
   workflow_dispatch:
+    inputs:
+      feature_branch:
+        description: 'Feature branch to test (optional)'
+        required: false
+        default: 'main'
 
 jobs:
   run-everything:
@@ -22,9 +27,6 @@ jobs:
       with:
         node-version: '20'
         cache: 'npm'
-    
-    - name: Install Dependencies
-      run: npm ci
 
     - name: Execute run-everything.sh
       id: run_script
