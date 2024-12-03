@@ -1,6 +1,9 @@
 name: End-to-End test
 
 on:
+  push:
+    branches:
+      - ci/test-workflow
   workflow_dispatch:
 
 jobs:
