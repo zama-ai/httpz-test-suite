@@ -20,13 +20,9 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Verify Docker Installation
-      run: docker --version
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
+      run: |
+        docker --version
+        node --version
 
     - name: Execute run-everything.sh
       id: run_script
