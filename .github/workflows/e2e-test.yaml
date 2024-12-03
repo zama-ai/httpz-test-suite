@@ -27,7 +27,8 @@ jobs:
     - name: Execute run-everything.sh
       id: run_script
       run: |
-        ./coprocessor/scripts/run_everything.sh 2>&1 | tee script_output.log
+        cd ./coprocessor/
+        ./scripts/run_everything.sh 2>&1 | tee script_output.log
         echo "exit_code=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
 
     - name: Upload Script Output
