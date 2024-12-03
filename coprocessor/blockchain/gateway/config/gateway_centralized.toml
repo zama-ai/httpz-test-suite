@@ -86,6 +86,14 @@ gas_escalator_increase = 20
 # relayer private key
 relayer_key = "7ec931411ad75a7c201469a385d6f18a325d4923f9f213bd882bbea87e160b67"
 
+# Retry config for get_cipertext in coprocessor mode
+# MAX_RETRIES sets the maximum retry count (6), resulting in an exponential backoff delay
+# that can reach up to 120 seconds (1s, 2s, 4s, 8s, 16s, 32s).
+[ethereum.get_ciphertext_retry]
+exponential_base = 2
+max_retries = 6
+factor = 1000 # in milliseconds
+
 # KMS Settings
 # Configuration settings related to the Key Management System (KMS).
 [kms]
@@ -102,11 +110,11 @@ mnemonic = "bachelor similar spirit copper rely carbon web hobby conduct wrap co
 # Used for making HTTP requests to the KMS service.
 address = "http://dev-kms-blockchain-validator:9090"
 
-# TODO stop-gap these will eventually be fetched from the ASC. This line can be removed if the key get setup with the simulator
-# Should be removed as part of https://github.com/zama-ai/fhevm/issues/548
-# Key ID used within the KMS.
-# Identifies the specific key to be used for cryptographic operations within the KMS.
-key_id = "408d8cbaa51dece7f782fe04ba0b1c1d017b1088"
+# Key ID and CRS ID used within the KMS.
+# Identifies the specific key and crs to be used on the gateway.
+# These values should depend on key generation and should be set accordingly.
+key_id = "?"
+crs_id = "?"
 
 # List of prefixed of URL endpoints for the public storage of the KMS.
 # The key in the map is the MPC ID of the party. I.e. [1; amount of parties]
