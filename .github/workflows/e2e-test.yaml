@@ -1,0 +1,43 @@
+name: End-to-End test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-everything:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Verify Docker Installation
+      run: docker --version
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Execute run-everything.sh
+      id: run_script
+      run: |
+        ./coprocessor/scripts/run-everything.sh 2>&1 | tee script_output.log
+        echo "exit_code=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+
+    - name: Upload Script Output
+      uses: actions/upload-artifact@v4
+      with:
+        name: script-output
+        path: script_output.log
+        retention-days: 5
+
+    - name: Check Script Execution Status
+      if: steps.run_script.outputs.exit_code != '0'
+      run: |
+        echo "::error::Script execution failed with exit code ${{ steps.run_script.outputs.exit_code }}"
+        exit 1
