@@ -28,32 +28,5 @@ jobs:
       id: run_script
       run: |
         cd ./coprocessor/
-        ./scripts/run_everything.sh 2>&1 | tee script_output.log
-        echo "exit_code=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
-
-    - name: Upload Script Output
-      uses: actions/upload-artifact@v4
-      with:
-        name: script-output
-        path: script_output.log
-        retention-days: 5
-
-    - name: Check Script Execution Status
-      if: steps.run_script.outputs.exit_code != '0'
-      run: |
-        echo "::error::Script execution failed with exit code ${{ steps.run_script.outputs.exit_code }}"
-        exit 1
-
-  post-run:
-      runs-on: ubuntu-latest
-      needs: run-everything
-      steps:
-      - name: Download Script Output
-        uses: actions/download-artifact@v4
-        with:
-          name: script-output
-
-      - name: Display Latest Output
-        run: |
-          echo "===== Script Output ====="
-          cat script_output.log
+        ./scripts/run_everything.sh
+        docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
