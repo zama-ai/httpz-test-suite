@@ -19,17 +19,10 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Verify Docker Installation
+    - name: Verify Dependencies Installation
       run: |
         docker --version
         node --version
-
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.BLOCKCHAIN_ACTIONS_TOKEN }}
 
     - name: Execute run-everything.sh
       id: run_script
