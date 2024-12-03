@@ -33,8 +33,8 @@ jobs:
       id: run_script
       run: |
         cd ./coprocessor/
-        ./scripts/run_everything.sh ; \
-        docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}" ; \
-        docker logs zama-kms-gateway-dev-kms-blockchain-asc-deploy-1 ; \
-        docker logs zama-kms-gateway-dev-kms-simulator-keygen-1 ; \
+        ./scripts/run_everything.sh || true
+        docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
+        docker logs zama-kms-gateway-dev-kms-blockchain-asc-deploy-1
+        docker logs zama-kms-gateway-dev-kms-simulator-keygen-1
         docker logs zama-kms-gateway-dev-kms-gateway-1
