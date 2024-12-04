@@ -5,7 +5,7 @@ services:
     depends_on:
       dev-s3-mock-setup:
         condition: service_completed_successfully
-    image: gw-with-integrted-kms:0.9.0-rc37
+    image: gw-with-integrated-kms:0.9.0-rc37
     ports:
       - "7077:7077"
     entrypoint: >
