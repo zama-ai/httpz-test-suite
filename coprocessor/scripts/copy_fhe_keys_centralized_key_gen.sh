@@ -3,10 +3,6 @@
 # Script to create keys by downloading from MinIO and copying them to the appropriate folder
 # Usage: ./copy_fhe_keys_threshold_key_gen.sh [LOCAL_BUILD_PUBLIC_KEY_PATH]
 
-CURRENT_FOLDER=$PWD
-KEYS_FULL_PATH="$CURRENT_FOLDER/res/keys"
-mkdir -p "$KEYS_FULL_PATH"
-
 if [ "$#" -ge 1 ]; then
     LOCAL_BUILD_PUBLIC_KEY_PATH=$1
     NETWORK_KEYS_PUBLIC_PATH="${LOCAL_BUILD_PUBLIC_KEY_PATH}"
@@ -15,6 +11,7 @@ else
 fi
 
 mkdir -p "$NETWORK_KEYS_PUBLIC_PATH"
+rm "$NETWORK_KEYS_PUBLIC_PATH/*"
 
 MAX_RETRIES=30
 DELAY=10
@@ -78,7 +75,7 @@ for path in "${FILES_TO_DOWNLOAD[@]}"; do
 done
 
 echo "###########################################################"
-echo "All the required keys will be downloaded to $KEYS_FULL_PATH"
+echo "All the required keys will be downloaded to $NETWORK_KEYS_PUBLIC_PATH"
 echo "###########################################################"
 
 # Copy the required files to the specified public path
