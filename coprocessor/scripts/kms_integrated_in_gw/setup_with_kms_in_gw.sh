@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -e
-
 # Import env variables from the .env file.
 export $(cat .env | xargs)
 
