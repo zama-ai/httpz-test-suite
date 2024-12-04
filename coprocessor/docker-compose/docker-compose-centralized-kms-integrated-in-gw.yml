@@ -5,7 +5,7 @@ services:
     depends_on:
       dev-s3-mock-setup:
         condition: service_completed_successfully
-    image: kms-in-gw:v0.9.0-rc37
+    image: gw-with-integrted-kms:te0.9.0-rc37
     build:
       context: .
       dockerfile: blockchain/gateway/operations/docker/local.dockerfile
