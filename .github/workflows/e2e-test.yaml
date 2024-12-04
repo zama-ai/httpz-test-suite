@@ -34,7 +34,48 @@ jobs:
       run: |
         cd ./coprocessor/
         ./scripts/run_everything.sh || true
-        docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
+        docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"
+
+    - name: zama-kms-gateway-dev-kms-blockchain-asc-deploy-1
+      run: |
         docker logs zama-kms-gateway-dev-kms-blockchain-asc-deploy-1
+
+    - name: zama-kms-gateway-dev-kms-simulator-keygen-1
+      run: |
         docker logs zama-kms-gateway-dev-kms-simulator-keygen-1
+
+    - name: zama-kms-gateway-dev-kms-gateway-1
+      run: |
         docker logs zama-kms-gateway-dev-kms-gateway-1
+
+    - name: zama-kms-gateway-dev-kms-connector-1
+      run: |
+        docker logs zama-kms-gateway-dev-kms-connector-1
+
+    - name: zama-kms-gateway-dev-kms-core-1
+      run: |
+        docker logs zama-kms-gateway-dev-kms-core-1
+
+    - name: zama-kms-gateway-dev-kms-blockchain-validator-1
+      run: |
+        docker logs zama-kms-gateway-dev-kms-blockchain-validator-1
+
+    - name: zama-kms-gateway-coproc-1
+      run: |
+        docker logs zama-kms-gateway-coproc-1
+
+    - name: zama-kms-gateway-db-1
+      run: |
+        docker logs zama-kms-gateway-db-1
+
+    - name: zama-kms-gateway-dev-s3-mock-1
+      run: |
+        docker logs zama-kms-gateway-dev-s3-mock-1
+
+    - name: zama-kms-gateway-geth-1
+      run: |
+        docker logs zama-kms-gateway-geth-1
+
+    - name: zama-kms-gateway-dev-kv-store-1
+      run: |
+        docker logs zama-kms-gateway-dev-kv-store-1
