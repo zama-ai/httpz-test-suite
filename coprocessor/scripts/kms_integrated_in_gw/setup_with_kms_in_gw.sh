@@ -15,9 +15,6 @@ sudo docker compose -vvv --env-file .env -f ../../docker-compose/docker-compose-
     -f ../../docker-compose/docker-compose-coprocesor.yml \
     up -d --wait
 
-# Wait a bit (why? :)).
-sleep 4
-
 # Copy keys.
 ../copy_fhe_keys_centralized_key_gen.sh "../../network-fhe-keys"
 
