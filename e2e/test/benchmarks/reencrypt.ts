@@ -47,9 +47,6 @@ describe("Benchmark reencrypt", function () {
   });
 
   it("benchmarks reencrypt parrallel", async function () {
-    const reencrypt = await deployReencryptFixture();
-    this.reencryptAddress = await reencrypt.getAddress();
-    this.reencrypt = reencrypt;
     await new Promise((resolve) => setTimeout(resolve, 10000));
     decrypt = createDecrypt(this.fhevm, this.signers.alice, this.reencryptAddress);
     let reencryptTimings: Timing[] = [];
