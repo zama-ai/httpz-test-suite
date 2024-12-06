@@ -13,7 +13,7 @@ name: zama-kms-base
 services:
   # KMS Blockchain
   dev-kms-blockchain-validator:
-    image: ghcr.io/zama-ai/kms-blockchain-asc:${DOCKER_IMAGES_TAG}
+    image: ghcr.io/zama-ai/kms-blockchain-asc:${DOCKER_IMAGES_TAG}-${ARCHITECTURE}
     healthcheck:
       test: "wget -Sq --spider http://localhost:26657/status"
       interval: 1s
@@ -32,7 +32,7 @@ services:
 
   # Smart contract deployment
   dev-kms-blockchain-asc-deploy:
-    image: ghcr.io/zama-ai/kms-blockchain-asc:${DOCKER_IMAGES_TAG}
+    image: ghcr.io/zama-ai/kms-blockchain-asc:${DOCKER_IMAGES_TAG}-${ARCHITECTURE}
     restart: "no"
     depends_on:
       dev-kms-blockchain-validator:
@@ -56,7 +56,7 @@ services:
 
   # KV-Store
   dev-kv-store:
-    image: ghcr.io/zama-ai/kms-blockchain-gateway:${DOCKER_IMAGES_TAG}
+    image: ghcr.io/zama-ai/kms-blockchain-gateway:${DOCKER_IMAGES_TAG}-${ARCHITECTURE}
     build:
       context: .
       dockerfile: blockchain/gateway/operations/docker/dev.dockerfile

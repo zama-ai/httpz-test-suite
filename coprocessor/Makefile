@@ -152,12 +152,14 @@ run-kms-threshold:
 	docker compose -vvv \
 		-f docker-compose/docker-compose-kms-base.yml \
 		-f docker-compose/docker-compose-kms-threshold.yml \
+		-f docker-compose/docker-compose-kms-observability.yml \
 		up -d --wait
 
 run-kms-threshold-with-gateway:
 	docker compose -vvv \
 		-f docker-compose/docker-compose-kms-base.yml \
 		-f docker-compose/docker-compose-kms-threshold.yml \
+		-f docker-compose/docker-compose-kms-observability.yml \
 		-f docker-compose/docker-compose-kms-gateway-threshold.yml \
 		-f docker-compose/docker-compose-coprocesor.yml \
 		up -d --wait
@@ -166,24 +168,28 @@ stop-kms-threshold:
 	docker compose -vvv \
 		-f docker-compose/docker-compose-kms-base.yml \
 		-f docker-compose/docker-compose-kms-threshold.yml \
+		-f docker-compose/docker-compose-kms-observability.yml \
 		down --volumes --remove-orphans
 
 run-kms-centralized:
 	docker compose -vvv \
 		-f docker-compose/docker-compose-kms-base.yml \
 		-f docker-compose/docker-compose-kms-centralized.yml \
+		-f docker-compose/docker-compose-kms-observability.yml \
 		up -d --wait
 
 stop-kms-centralized:
 	docker compose -vvv \
 		-f docker-compose/docker-compose-kms-base.yml \
 		-f docker-compose/docker-compose-kms-centralized.yml \
+		-f docker-compose/docker-compose-kms-observability.yml \
 		down
 
 run-kms-centralized-with-gateway:
 	docker compose -vvv \
 		-f docker-compose/docker-compose-kms-base.yml \
 		-f docker-compose/docker-compose-kms-centralized.yml \
+		-f docker-compose/docker-compose-kms-observability.yml \
 		-f docker-compose/docker-compose-kms-gateway-centralized.yml \
 		-f docker-compose/docker-compose-coprocesor.yml \
 		up -d --wait
@@ -192,6 +198,7 @@ stop-kms-centralized-with-gateway:
 	docker compose -vvv \
 		-f docker-compose/docker-compose-kms-base.yml \
 		-f docker-compose/docker-compose-kms-centralized.yml \
+		-f docker-compose/docker-compose-kms-observability.yml \
 		-f docker-compose/docker-compose-kms-gateway-centralized.yml \
 		-f docker-compose/docker-compose-coprocesor.yml \
 		down -v --remove-orphans
@@ -200,6 +207,7 @@ stop-kms-threshold-with-gateway:
 	docker compose -vvv \
 		-f docker-compose/docker-compose-kms-base.yml \
 		-f docker-compose/docker-compose-kms-threshold.yml \
+		-f docker-compose/docker-compose-kms-observability.yml \
 		-f docker-compose/docker-compose-kms-gateway-threshold.yml \
 		-f docker-compose/docker-compose-coprocesor.yml \
 		down -v --remove-orphans

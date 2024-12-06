@@ -6,7 +6,7 @@ services:
   # 1. Generate TLS certificates
   # NOTE: for now we do the key-generation here because kms-server requires one to start
   dev-kms-core-certs:
-    image: ghcr.io/zama-ai/kms-service:${DOCKER_IMAGES_TAG}
+    image: ghcr.io/zama-ai/kms-service:${DOCKER_IMAGES_TAG}-${ARCHITECTURE}
     environment:
       - RUST_LOG=debug
     entrypoint: >
@@ -21,7 +21,7 @@ services:
 
   # 3. Initialize the different cores
   dev-kms-core-init:
-    image: ghcr.io/zama-ai/kms-service:${DOCKER_IMAGES_TAG}
+    image: ghcr.io/zama-ai/kms-service:${DOCKER_IMAGES_TAG}-${ARCHITECTURE}
     depends_on:
       dev-kms-core-1:
         condition: service_healthy
@@ -48,7 +48,7 @@ services:
 
   # 2. We start all cores
   dev-kms-core-1:
-    image: ghcr.io/zama-ai/kms-service:${DOCKER_IMAGES_TAG}
+    image: ghcr.io/zama-ai/kms-service:${DOCKER_IMAGES_TAG}-${ARCHITECTURE}
     ports:
       - "50051:50051"
       - "50100:50100"
@@ -95,7 +95,7 @@ services:
     build:
       context: .
       dockerfile: blockchain/connector/operations/docker/dev.dockerfile
-    image: ghcr.io/zama-ai/kms-blockchain-connector-dev:${DOCKER_IMAGES_TAG}
+    image: ghcr.io/zama-ai/kms-blockchain-connector:${DOCKER_IMAGES_TAG}-${ARCHITECTURE}
     volumes:
       - ../blockchain/connector/config/:/app/kms-connector/config
     command:
@@ -118,7 +118,7 @@ services:
         condition: service_completed_successfully
 
   dev-kms-core-2:
-    image: ghcr.io/zama-ai/kms-service:${DOCKER_IMAGES_TAG}
+    image: ghcr.io/zama-ai/kms-service:${DOCKER_IMAGES_TAG}-${ARCHITECTURE}
     ports:
       - "50052:50052"
       - "50200:50200"
@@ -150,7 +150,7 @@ services:
       "
 
   dev-kms-connector-2:
-    image: ghcr.io/zama-ai/kms-blockchain-connector-dev:${DOCKER_IMAGES_TAG}
+    image: ghcr.io/zama-ai/kms-blockchain-connector:${DOCKER_IMAGES_TAG}-${ARCHITECTURE}
     volumes:
       - ../blockchain/connector/config/:/app/kms-connector/config
     command:
@@ -173,7 +173,7 @@ services:
         condition: service_completed_successfully
 
   dev-kms-core-3:
-    image: ghcr.io/zama-ai/kms-service:${DOCKER_IMAGES_TAG}
+    image: ghcr.io/zama-ai/kms-service:${DOCKER_IMAGES_TAG}-${ARCHITECTURE}
     ports:
       - "50053:50053"
       - "50300:50300"
@@ -205,7 +205,7 @@ services:
       "
 
   dev-kms-connector-3:
-    image: ghcr.io/zama-ai/kms-blockchain-connector-dev:${DOCKER_IMAGES_TAG}
+    image: ghcr.io/zama-ai/kms-blockchain-connector:${DOCKER_IMAGES_TAG}-${ARCHITECTURE}
     volumes:
       - ../blockchain/connector/config/:/app/kms-connector/config
     command:
@@ -228,7 +228,7 @@ services:
         condition: service_completed_successfully
 
   dev-kms-core-4:
-    image: ghcr.io/zama-ai/kms-service:${DOCKER_IMAGES_TAG}
+    image: ghcr.io/zama-ai/kms-service:${DOCKER_IMAGES_TAG}-${ARCHITECTURE}
     ports:
       - "50054:50054"
       - "50400:50400"
@@ -260,7 +260,7 @@ services:
       "
 
   dev-kms-connector-4:
-    image: ghcr.io/zama-ai/kms-blockchain-connector-dev:${DOCKER_IMAGES_TAG}
+    image: ghcr.io/zama-ai/kms-blockchain-connector:${DOCKER_IMAGES_TAG}-${ARCHITECTURE}
     volumes:
       - ../blockchain/connector/config/:/app/kms-connector/config
     command:

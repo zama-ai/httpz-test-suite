@@ -11,4 +11,4 @@ grpc_max_message_size = 20971520 # 20 MiB
 
 [tracing]
 service_name = "kms-centralized"
-endpoint = "http://localhost:4317"
+endpoint = "http://otelcol:4317"

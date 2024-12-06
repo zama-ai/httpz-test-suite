@@ -4,7 +4,7 @@ services:
   # 5. Launch key-gen
   # TODO: store gateway config in volume and modify it with key-id
   dev-kms-simulator-keygen:
-    image: ghcr.io/zama-ai/kms-blockchain-simulator:${DOCKER_IMAGES_TAG}
+    image: ghcr.io/zama-ai/kms-blockchain-simulator:${DOCKER_IMAGES_TAG}-${ARCHITECTURE}
     build:
       context: .
       dockerfile: blockchain/simulator/operations/docker/ci.dockerfile
@@ -32,7 +32,7 @@ services:
       dev-kms-simulator-keygen:
         condition: service_completed_successfully
 
-    image: ghcr.io/zama-ai/kms-blockchain-gateway-dev:${DOCKER_IMAGES_TAG}
+    image: ghcr.io/zama-ai/kms-blockchain-gateway:${DOCKER_IMAGES_TAG}-${ARCHITECTURE}
     build:
       context: .
       dockerfile: blockchain/gateway/operations/docker/dev.dockerfile
