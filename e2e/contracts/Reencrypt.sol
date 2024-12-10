@@ -51,15 +51,16 @@ contract Reencrypt is E2EFHEVMConfig {
       TFHE.allowThis(result256);
       TFHE.allow(result256, msg.sender);
 
-      resultEbytes64 = TFHE.asEbytes64(TFHE.padToBytes64("0x100"));
+      // resultEbytes64 = TFHE.asEbytes64(TFHE.padToBytes64("0x100"));
+      resultEbytes64 = TFHE.asEbytes64(TFHE.padToBytes64(hex'0100'));
       TFHE.allowThis(resultEbytes64);
       TFHE.allow(resultEbytes64, msg.sender);
 
-      resultEbytes128 = TFHE.asEbytes128(TFHE.padToBytes128("0x200"));
+      resultEbytes128 = TFHE.asEbytes128(TFHE.padToBytes128(hex'0200'));
       TFHE.allowThis(resultEbytes128);
       TFHE.allow(resultEbytes128, msg.sender);
 
-      resultEbytes256 = TFHE.asEbytes256(TFHE.padToBytes256("0x300"));
+      resultEbytes256 = TFHE.asEbytes256(TFHE.padToBytes256(hex'0300'));
       TFHE.allowThis(resultEbytes256);
       TFHE.allow(resultEbytes256, msg.sender);
     }
