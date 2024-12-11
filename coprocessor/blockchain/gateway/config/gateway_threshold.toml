@@ -104,7 +104,7 @@ contract_address = "wasm1cnuw3f076wgdyahssdkd0g3nr96ckq8cwa2mh029fn5mgf2fmcms9ax
 # Mnemonic phrase for accessing the KMS.
 # This is a human-readable string of words used to derive cryptographic keys.
 # It should be kept secure and private.
-mnemonic = "bachelor similar spirit copper rely carbon web hobby conduct wrap conduct wire shine parrot erosion divert crucial balance lock reason price ignore educate open"
+mnemonic = "degree fringe genuine soon present soul jelly catch that million van idle ship always silly uphold private mandate great used donate armed shock uphold"
 
 # Base URL of the KMS service.
 # Used for making HTTP requests to the KMS service.
