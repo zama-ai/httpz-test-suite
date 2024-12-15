@@ -21,7 +21,6 @@ contract Rand is E2EFHEVMConfig {
     ebytes128 public value1024;
     ebytes256 public value2048;
 
-
     /// @notice Generate random 8-bit encrypted unsigned integer
     function generateBool() public {
         valueb = TFHE.randEbool();

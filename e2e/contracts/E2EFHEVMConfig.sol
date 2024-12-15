@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BSD-3-Clause-Clear
 pragma solidity ^0.8.24;
 
-import {FHEVMConfig, TFHE} from "fhevm/lib/TFHE.sol";
+import { FHEVMConfig, TFHE } from "fhevm/lib/TFHE.sol";
 import { Gateway } from "fhevm/gateway/GatewayCaller.sol";
 
 address constant gatewayAddress = 0x33347831500F1e73f0ccCBb95c9f86B94d7b1123;

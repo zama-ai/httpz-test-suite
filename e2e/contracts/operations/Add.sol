@@ -14,7 +14,6 @@ contract Add is E2EFHEVMConfig {
     euint128 public result128;
     euint256 public result256;
 
-
     function add4() public {
         result4 = TFHE.add(TFHE.asEuint4(1), TFHE.asEuint4(2));
         TFHE.allow(result4, address(this));
