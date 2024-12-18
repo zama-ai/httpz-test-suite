@@ -65,7 +65,7 @@ max_poll_count = 24
 
 [tracing]
 service_name = "kms-connector-1"
-endpoint = "http://otelcol:4317"
+endpoint = "http://otelcol:4318"
 
 [store]
 url = "http://localhost:8088"

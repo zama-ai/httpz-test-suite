@@ -50,7 +50,7 @@ max_poll_count = 24
 
 [tracing]
 service_name = "kms-asc-connector"
-endpoint = "http://otelcol:4317"
+endpoint = "http://otelcol:4318"
 
 [store]
 url = "http://store:8088"

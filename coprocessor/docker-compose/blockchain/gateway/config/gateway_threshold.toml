@@ -133,4 +133,4 @@ url = "http://dev-kv-store:8088"
 
 [tracing]
 service_name = "gateway"
-endpoint = "http://otelcol:4317"
+endpoint = "http://otelcol:4318"
