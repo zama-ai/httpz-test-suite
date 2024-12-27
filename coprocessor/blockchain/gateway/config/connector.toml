@@ -6,7 +6,8 @@ addresses = ["http://fhevm-geth:26657"]
 
 [blockchain]
 addresses = ["http://kms-blockchain-validator:9090"]
-contract = "wasm1cnuw3f076wgdyahssdkd0g3nr96ckq8cwa2mh029fn5mgf2fmcms9ax00l"
+asc_address = "wasm18v47nqmhvejx3vc498pantg8vr435xa0rt6x0m6kzhp6yuqmcp8s9jfa9t" # Deployed ASC
+csc_address = "wasm14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9s0phg4d"
 
 [blockchain.signkey]
 # It should be either mnemonic or bip32
@@ -26,7 +27,7 @@ channel_timeout = 60
 [core.timeout_config.insecure_crs]
 initial_wait_time = 1
 retry_interval = 3
-max_poll_count = 48
+max_poll_count = 24
 
 [core.timeout_config.crs]
 initial_wait_time = 60
@@ -61,7 +62,7 @@ max_poll_count = 1
 [core.timeout_config.insecure_key_gen]
 initial_wait_time = 1
 retry_interval = 3
-max_poll_count = 48
+max_poll_count = 24
 
 [tracing]
 service_name = "kms-asc-connector"
