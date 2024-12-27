@@ -128,7 +128,7 @@ crs_id = "e96350ca27c94d416fc11d78ad6fa001b06873af"
 
 
 [storage]
-url = "http://localhost:8088"
+url = "http://kms-kv-store:8088"
 
 [tracing]
 service_name = "gateway"
