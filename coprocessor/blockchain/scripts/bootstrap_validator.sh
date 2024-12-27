@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# TODO: fail script if some command fails
+set -euo pipefail
 
 ulimit unlimited
 
@@ -27,9 +27,8 @@ sed -i -re 's/^(cors_allowed_origins =.*)$.*/cors_allowed_origins = \[\"*\"\]/g'
 sed -i -re 's/^(timeout_commit =.*)$.*/timeout_commit = "500ms"/g' /root/.wasmd/config/config.toml
 
 # Start the KMS full node
-/opt/run_wasmd.sh
-
+#/opt/run_wasmd.sh
 # "daemon" mode
-# nohup /opt/run_wasmd.sh > /dev/null 2>&1 &
+ nohup /opt/run_wasmd.sh > /dev/null 2>&1 &
 # # keep the container running
-# tail -f /dev/null
+ tail -f /dev/null
