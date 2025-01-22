@@ -11,7 +11,7 @@ INFO:
 `python3 -m venv .venv`
 
 2. Install web3 package
-pip install web3
+pip install -r requirement.txt
 
 ## Run listener
 
