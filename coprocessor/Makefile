@@ -228,6 +228,12 @@ run-all-tests:
 	@cd $(FHEVM_SOLIDITY_PATH) && npx hardhat test --grep 'test async decrypt uint64 non-trivial'
 
 
+run-full:
+	$(MAKE) run-kms
+	$(MAKE) init-db
+	@bash scripts/fund_tests_addresses_docker.sh
+	$(MAKE) setup-fhevm-contracts
+
 e2e-test:
 	@$(MAKE) check-all-test-repo
 	$(MAKE) run-full
