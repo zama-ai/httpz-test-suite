@@ -4,16 +4,16 @@ import sys
 from web3 import Web3
 from web3._utils.events import event_abi_to_log_topic
 
-# ✅ Connect to Geth WebSocket on port 8746 (using Legacy for Web3.py v6+)
-WS_URL = "ws://localhost:8746"
+# ✅ Define WebSocket and Contract Address
+WS_URL = "ws://localhost:8746"  # Change if needed
+CONTRACT_ADDRESS = "0x596E6682c72946AF006B27C131793F2b62527A4b"
+
+# ✅ Connect to Geth WebSocket
 web3 = Web3(Web3.LegacyWebSocketProvider(WS_URL))
 
 # ✅ Ensure Web3 is Connected
 if not web3.is_connected():
     raise Exception("❌ Failed to connect to Web3 provider!")
-
-# ✅ Contract Address
-CONTRACT_ADDRESS = "0x596E6682c72946AF006B27C131793F2b62527A4b"
 
 # ✅ Load Contract ABI
 with open("./TFHEExecutor.json") as f:
@@ -34,6 +34,12 @@ else:
     # If no arguments provided, listen to all events
     EVENT_NAMES = set(all_events)
     print(f"🎯 No filter applied, listening to ALL events: {', '.join(EVENT_NAMES)}")
+
+# ✅ Display WebSocket and Contract Info
+print("\n🚀 Event Listener Started")
+print(f"🔌 WebSocket Provider: {WS_URL}")
+print(f"🏛️ Contract Address: {CONTRACT_ADDRESS}")
+print("🔍 Press CTRL+C to stop.\n")
 
 # ✅ Function to Decode Events Properly (Web3.py v6+)
 def decode_event(event_log):
@@ -67,8 +73,6 @@ def handle_event(event_log):
 
 # ✅ Poll Events (Web3 v6+ Best Method)
 def listen_events():
-    print(f"🔍 Listening for contract events... Press CTRL+C to stop.")
-
     latest_block = web3.eth.block_number
 
     while True:
