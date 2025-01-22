@@ -4,6 +4,7 @@
 include .env
 export $(shell cat .env | sed 's/=.*//g')
 
+TOP := $(dir $(firstword $(MAKEFILE_LIST)))
 BINDIR ?= $(GOPATH)/bin
 ETHERMINT_BINARY = ethermintd
 ETHERMINT_DIR = ethermint
@@ -113,12 +114,12 @@ check-all-test-repo: check-fhevm-solidity
 
 
 copy-keys-threshold-key-gen:
-	@bash ./scripts/copy_fhe_keys_threshold_key_gen.sh $(PWD)/network-fhe-keys
-	@bash ./scripts/update_signers.sh $(PWD)/env/.env.example.deployment $(PWD)/network-fhe-keys 4
+	@bash ./scripts/copy_fhe_keys_threshold_key_gen.sh $(TOP)network-fhe-keys
+	@bash ./scripts/update_signers.sh $(TOP)env/.env.example.deployment $(TOP)/network-fhe-keys 4
 
 copy-keys-centralized-key-gen:
-	@bash ./scripts/copy_fhe_keys_centralized_key_gen.sh $(PWD)/network-fhe-keys
-	@bash ./scripts/update_signers.sh $(PWD)/env/.env.example.deployment $(PWD)/network-fhe-keys 1
+	@bash ./scripts/copy_fhe_keys_centralized_key_gen.sh $(TOP)/network-fhe-keys
+	@bash ./scripts/update_signers.sh $(TOP)/env/.env.example.deployment $(TOP)network-fhe-keys 1
 
 
 run-kms-threshold-with-gateway:
