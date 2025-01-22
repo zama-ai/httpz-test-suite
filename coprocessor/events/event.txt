@@ -1,0 +1,107 @@
+  "contractName": "TFHEExecutor",
+  "sourceName": "contracts/TFHEExecutor.events.sol",
+--
+      "name": "Cast",
+      "type": "event"
+--
+      "name": "FheAdd",
+      "type": "event"
+--
+      "name": "FheBitAnd",
+      "type": "event"
+--
+      "name": "FheBitOr",
+      "type": "event"
+--
+      "name": "FheBitXor",
+      "type": "event"
+--
+      "name": "FheDiv",
+      "type": "event"
+--
+      "name": "FheEq",
+      "type": "event"
+--
+      "name": "FheEqBytes",
+      "type": "event"
+--
+      "name": "FheGe",
+      "type": "event"
+--
+      "name": "FheGt",
+      "type": "event"
+--
+      "name": "FheIfThenElse",
+      "type": "event"
+--
+      "name": "FheLe",
+      "type": "event"
+--
+      "name": "FheLt",
+      "type": "event"
+--
+      "name": "FheMax",
+      "type": "event"
+--
+      "name": "FheMin",
+      "type": "event"
+--
+      "name": "FheMul",
+      "type": "event"
+--
+      "name": "FheNe",
+      "type": "event"
+--
+      "name": "FheNeBytes",
+      "type": "event"
+--
+      "name": "FheNeg",
+      "type": "event"
+--
+      "name": "FheNot",
+      "type": "event"
+--
+      "name": "FheRand",
+      "type": "event"
+--
+      "name": "FheRandBounded",
+      "type": "event"
+--
+      "name": "FheRem",
+      "type": "event"
+--
+      "name": "FheRotl",
+      "type": "event"
+--
+      "name": "FheRotr",
+      "type": "event"
+--
+      "name": "FheShl",
+      "type": "event"
+--
+      "name": "FheShr",
+      "type": "event"
+--
+      "name": "FheSub",
+      "type": "event"
+--
+      "name": "Initialized",
+      "type": "event"
+--
+      "name": "OwnershipTransferStarted",
+      "type": "event"
+--
+      "name": "OwnershipTransferred",
+      "type": "event"
+--
+      "name": "TrivialEncrypt",
+      "type": "event"
+--
+      "name": "TrivialEncryptBytes",
+      "type": "event"
+--
+      "name": "Upgraded",
+      "type": "event"
+--
+      "name": "VerifyCiphertext",
+      "type": "event"
