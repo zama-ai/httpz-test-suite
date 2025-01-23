@@ -1,9 +1,7 @@
 services:
   setup-fhevm-contracts:
-    environment:
-      - HARDHAT_TFHEEXECUTOR_EVENTS=1
     container_name: ${DOCKER_COMPOSE_PROJECT}-setup-fhevm-contracts
-    image: ghcr.io/zama-ai/fhevm-smart-contracts-dev:v0.1.1-1
+    image: ghcr.io/zama-ai/fhevm-smart-contracts-dev:76730ff
     volumes:
       - ../env/.env.example.deployment:/app/.env.example.deployment
       - ../env/hardhat.config.ts:/app/hardhat.config.ts
