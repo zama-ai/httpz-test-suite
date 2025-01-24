@@ -27,6 +27,7 @@ const chainIds = {
   local: 9000,
   ethereum: 1,
   sepolia: 11155111,
+  staging: 12345,
 };
 
 function getChainConfig(chain: keyof typeof chainIds): NetworkUserConfig {
@@ -43,6 +44,9 @@ function getChainConfig(chain: keyof typeof chainIds): NetworkUserConfig {
       break;
     case "sepolia":
       jsonRpcUrl = "https://eth-sepolia.public.blastapi.io";
+      break;
+    case "staging":
+      jsonRpcUrl = "http://fhevm-blockchain-geth-node.fhevm.svc.cluster.local:8545";
       break;
     case "ethereum":
       jsonRpcUrl = "https://eth-mainnet.public.blastapi.io";
@@ -66,7 +70,7 @@ task("coverage").setAction(async (taskArgs, hre, runSuper) => {
 });
 
 const config: HardhatUserConfig = {
-  defaultNetwork: "sepolia",
+  defaultNetwork: "staging",
   namedAccounts: {
     deployer: 0,
   },
@@ -91,6 +95,7 @@ const config: HardhatUserConfig = {
     local: getChainConfig("local"),
     localCoprocessor: getChainConfig('localCoprocessor'),
     sepolia: getChainConfig("sepolia"),
+    staging: getChainConfig("staging"),
     ethereum: getChainConfig("ethereum"),
   },
   paths: {

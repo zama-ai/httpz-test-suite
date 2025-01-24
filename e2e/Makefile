@@ -24,6 +24,13 @@ prepare-test-local-coprocessor:
 	@cp -v contracts/E2EFHEVMConfigLocal.sol $(CONFIG_FILE)
 	@$(MAKE) set-local-network
 
+# Prepares the environment for Staging network testing
+prepare-test-staging:
+	@echo "Preparing environment for staging network testing..."
+	@cp -v .env.staging $(ENV_FILE)
+	@cp -v contracts/E2EFHEVMConfigStaging.sol $(CONFIG_FILE)
+	@$(MAKE) set-staging-network
+
 # Prepares the environment for Sepolia network testing
 prepare-test-sepolia:
 	@echo "Preparing environment for Sepolia network testing..."
@@ -37,6 +44,14 @@ set-local-network:
 		sed -i '' 's/defaultNetwork: ".*"/defaultNetwork: "localCoprocessor"/' $(HARDHAT_CONFIG); \
 	else \
 		sed -i 's/defaultNetwork: ".*"/defaultNetwork: "localCoprocessor"/' $(HARDHAT_CONFIG); \
+	fi
+
+set-staging-network:
+	@echo "Setting default network to 'staging' in $(HARDHAT_CONFIG)..."
+	@if [ "$(shell uname)" = "Darwin" ]; then \
+		sed -i '' 's/defaultNetwork: ".*"/defaultNetwork: "staging"/' $(HARDHAT_CONFIG); \
+	else \
+		sed -i 's/defaultNetwork: ".*"/defaultNetwork: "staging"/' $(HARDHAT_CONFIG); \
 	fi
 
 # Cleans up generated or temporary files
