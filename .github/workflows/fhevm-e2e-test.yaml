@@ -23,11 +23,11 @@ jobs:
       id-token: "write"
       packages: "write"
     with:
-      working-directory: "./e2e/."
+      working-directory: "."
       push_image: true
       image-name: "fhevm-e2e-test"
       generate-dev-image: false
-      docker-file: "Dockerfile"
+      docker-file: "e2e/Dockerfile"
       arm-build: true
 
     secrets:

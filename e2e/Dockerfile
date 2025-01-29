@@ -13,7 +13,7 @@ RUN apt-get update && \
 WORKDIR /app
 
 # Copy project files
-COPY . .
+COPY e2e/. .
 
 # Install npm dependencies
 RUN npm install
