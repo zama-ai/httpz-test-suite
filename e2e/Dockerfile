@@ -15,5 +15,8 @@ WORKDIR /app
 # Copy project files
 COPY . .
 
+# Install npm dependencies
+RUN npm install
+
 # Keep container running
 CMD ["tail", "-f", "/dev/null"]

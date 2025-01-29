@@ -29,12 +29,11 @@ prepare-test-staging:
 	@echo "Preparing environment for staging network testing..."
 	@cp -v .env.staging $(ENV_FILE)
 	@cp -v contracts/E2EFHEVMConfigStaging.sol $(CONFIG_FILE)
-	@$(MAKE) set-staging-network
 
 # Prepares the environment for Sepolia network testing
 prepare-test-sepolia:
 	@echo "Preparing environment for Sepolia network testing..."
-	@cp -v .env.example $(ENV_FILE)
+	@cp -v .env.sepolia $(ENV_FILE)
 	@cp -v contracts/E2EFHEVMConfigSepolia.sol $(CONFIG_FILE)
 
 # Sets the default network to "localCoprocessor" in hardhat.config.ts
