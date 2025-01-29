@@ -26,7 +26,6 @@ jobs:
       working-directory: "."
       push_image: true
       image-name: "fhevm-e2e-test"
-      generate-dev-image: false
       docker-file: "e2e/Dockerfile"
       arm-build: true
 

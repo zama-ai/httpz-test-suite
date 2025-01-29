@@ -7,7 +7,7 @@ RUN apt-get update && \
     curl \
     vim \
     jq \
-    && npm install -g npm@11.0.0 \
+    && npm install -g npm@11.0.0 hardhat \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
