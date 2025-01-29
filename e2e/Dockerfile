@@ -16,8 +16,5 @@ WORKDIR /app
 # Copy project files
 COPY e2e/. .
 
-# Install npm dependencies
-RUN npm ci
-
 # Keep container running
 CMD ["tail", "-f", "/dev/null"]
