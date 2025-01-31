@@ -72,6 +72,8 @@ const config: HardhatUserConfig = {
   },
   mocha: {
     timeout: 500000,
+    reporter: './instrument-tests/otel-reporter.js',
+    // require: ['./instrument-tests/otel-setup.js'],
   },
   gasReporter: {
     currency: "USD",
