@@ -1,13 +1,11 @@
 // Custom Mocha reporter to create
 
 // ############# IMPORTS ###########################
+const opentelemetry = require("@opentelemetry/api");
 const { BatchSpanProcessor } = require("@opentelemetry/sdk-trace-base");
 const { NodeTracerProvider } = require("@opentelemetry/sdk-trace-node");
 
-const { diag, DiagConsoleLogger, DiagLogLevel, trace, context } = require("@opentelemetry/api");
-const { OTLPMetricExporter } = require("@opentelemetry/exporter-metrics-otlp-http");
-const { OTLPTraceExporter } = require("@opentelemetry/exporter-trace-otlp-http");
-
+const { diag, DiagConsoleLogger, DiagLogLevel, trace, context, ProxyTracerProvider } = require("@opentelemetry/api");
 const { envDetector, hostDetector, osDetector, processDetector, Resource } = require("@opentelemetry/resources");
 const { SemanticResourceAttributes } = require("@opentelemetry/semantic-conventions");
 
@@ -19,10 +17,11 @@ const { SimpleSpanProcessor, ConsoleSpanExporter } = require("@opentelemetry/sdk
 // Auto
 const { HttpInstrumentation } = require("@opentelemetry/instrumentation-http");
 const { getNodeAutoInstrumentations } = require("@opentelemetry/auto-instrumentations-node");
-// const { awsEc2Detector, awsEksDetector } = require("@opentelemetry/resource-detector-aws");
-// const { containerDetector } = require("@opentelemetry/resource-detector-container");
+const { awsEc2Detector, awsEksDetector } = require("@opentelemetry/resource-detector-aws");
+const { containerDetector } = require("@opentelemetry/resource-detector-container");
 
 const { registerInstrumentations, InstrumentationBase } = require("@opentelemetry/instrumentation");
+const { ATTR_SERVICE_NAME } = require("@opentelemetry/semantic-conventions");
 
 // Mocha
 const Mocha = require("mocha");
@@ -38,100 +37,86 @@ const {
   EVENT_TEST_FAIL,
 } = Mocha.Runner.constants;
 
-// ############# SETUP ###########################
-
-// NOTE: debug open-telemetry logger
-diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
-
-// Init resource
-const resource = new Resource({
-  [SemanticResourceAttributes.SERVICE_NAME]: "e2e-tests",
-});
-
-// Init providers
-const tracer_provider = new NodeTracerProvider({ resource });
-const meter_provider = new MeterProvider({
-  resource: resource,
-});
-meter_provider.addMetricReader(
-  new PeriodicExportingMetricReader({
-    exporter: new OTLPMetricExporter(),
-    exportIntervalMillis: 10,
-  }),
-);
-
-// Create meters, tracers
-const meter = meter_provider.getMeter("mocha-metrics");
-
-// Create counters and histograms
-const testCounter = meter.createCounter("test.total", {
-  description: "Total number of tests run",
-});
-const testDurationHistogram = meter.createHistogram("test.duration", {
-  description: "Test execution duration",
-  unit: "ms",
-});
-const testResultCounter = meter.createCounter("test.results", {
-  description: "Test results by status",
-});
-
-// ############# MOCHA REPORTER ###########################
-
+// RUN -> SUITE (-> SUITE) -> TEST
 // Create custom Mocha reporter that handles metrics
+//
+// NOTE: TEST_FAIL does not trigger TEST_END
 class OTelReporter {
   constructor(runner) {
-    let sdk;
-    // const stats = runner.stats;
+    // Mocha runner statistics
+    const stats = runner.stats;
+
+    // NOTE: in theory the following script should be set as a `--require`
+    // but for the way Hardhat leverages Mocha makes it so that required
+    // scripts are not actually called.
+    // https://github.com/mochajs/mocha/issues/5006
+    const sdk = require("./otel-setup.js");
+
+    // Init meter and tracer
+    const name = "mocha-reporter";
+    const version = "0.1.0";
+    const meter = opentelemetry.metrics.getMeter(name, version);
+    const tracer = opentelemetry.trace.getTracer(name, version);
+
+    // Create counters and histograms
+    const testCounter = meter.createCounter("test.total", {
+      description: "Total number of tests run",
+    });
+    const testDurationHistogram = meter.createHistogram("test.duration", {
+      description: "Test execution duration",
+      unit: "ms",
+    });
+    const testResultCounter = meter.createCounter("test.results", {
+      description: "Test results by status",
+    });
+
+    let spans = new Map();
+    let run_span = null;
+
     runner.on(EVENT_RUN_BEGIN, () => {
-      console.log("EVENT_RUN_BEGIN begin");
-      sdk = new NodeSDK({
-        resource: new Resource({
-          [SemanticResourceAttributes.SERVICE_NAME]: "e2e-test-suite",
-        }),
-        // traceExporter: new OTLPTraceExporter(),
-        traceExporter: new ConsoleSpanExporter(),
-        instrumentations: [
-          getNodeAutoInstrumentations({
-            // only instrument fs if it is part of another trace
-            "@opentelemetry/instrumentation-fs": {
-              requireParentSpan: true,
-            },
-          }),
-          new HttpInstrumentation(),
-        ],
-        // Use OpenTelemetry metric exporter
-        metricReader: new PeriodicExportingMetricReader({
-          exporter: new OTLPMetricExporter({ exportIntervalMillis: 10 }),
-        }),
-        resourceDetectors: [
-          envDetector,
-          hostDetector,
-          osDetector,
-          processDetector,
-          // containerDetector,
-          // awsESETUP,
-          // awsEc2Detector,
-        ],
-      });
-      sdk.start().then(()=>{
-        console.log("SDK started.");
-      })
+      console.log("EVENT_RUN_BEGIN");
+      run_span = tracer.startSpan("run-span");
     });
 
     runner.on(EVENT_RUN_END, () => {
       console.log("EVENT_RUN_END");
-      sdk.shutdown().then(() => {
-        console.log("SDK shutdown.");
-      });
+      meter
+        .createObservableGauge("test.summary", {
+          description: "Test suite summary metrics",
+        })
+        .addCallback((result) => {
+          result.observe(stats.passes, { metric: "passes" });
+          result.observe(stats.failures, { metric: "failures" });
+          result.observe(stats.pending, { metric: "pending" });
+          result.observe(stats.duration, { metric: "duration_ms" });
+        });
+      if (run_span) {
+        run_span.end();
+      }
+      const meter_provider = opentelemetry.metrics.getMeterProvider();
+      meter_provider.forceFlush();
+      // NOTE: tracer_provider doesn't provide a `forceFlush` API
+      // per https://github.com/open-telemetry/opentelemetry-js/issues/3310
+      // even though included in the spec: https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/sdk.md#forceflush
+      const tracer_provider = opentelemetry.trace.getTracerProvider();
+      if (tracer_provider instanceof NodeTracerProvider) {
+        tracer_provider.shutdown();
+      } else if (tracer_provider instanceof ProxyTracerProvider) {
+        const delegateProvider = tracer_provider.getDelegate();
+        if (delegateProvider instanceof NodeTracerProvider) {
+          delegateProvider.shutdown();
+        }
+      } else {
+        console.log(tracer_provider);
+      }
+      sdk.shutdown().then(
+        () => console.log("Telemetry shut down successfully"),
+        () => console.error("Telemetry shut down failed"),
+      );
     });
 
     runner.on(EVENT_TEST_BEGIN, (test) => {
       console.log("EVENT_TEST_BEGIN");
-    });
-
-    runner.on(EVENT_TEST_END, (test) => {
-      console.log("EVENT_TEST_END");
-      testCounter.add(1);
     });
 
     runner.on(EVENT_SUITE_BEGIN, (suite) => {
@@ -143,38 +128,24 @@ class OTelReporter {
     });
 
     runner.on(EVENT_TEST_PASS, (test) => {
+      console.log("EVENT_TEST_PASS");
       testResultCounter.add(1, { result: "pass", name: test.title, suite: test.parent.title });
     });
 
     runner.on(EVENT_TEST_FAIL, (test) => {
+      console.log("EVENT_TEST_FAIL");
       testResultCounter.add(1, { result: "fail", name: test.title, suite: test.parent.title });
     });
 
-    // TODO: figure out if we want the histogram
-    // runner.on("test end", (test) => {
-    //   console.log();
-    //   console.log(stats);
-    //   console.log(test);
-    //   console.log("$$$$$$$$$$$ END $$$$$$$$$$$$$$$$$$$$");
-    //   console.log();
-    //   testDurationHistogram.record(test.duration, {
-    //     suite: test.parent.title,
-    //     test: test.title,
-    //   });
-    // });
-    // runner.on("end", () => {
-    //   // Final test suite metrics
-    //   meter
-    //     .createObservableGauge("test.summary", {
-    //       description: "Test suite summary metrics",
-    //     })
-    //     .addCallback((result) => {
-    //       result.observe(stats.passes, { metric: "passes" });
-    //       result.observe(stats.failures, { metric: "failures" });
-    //       result.observe(stats.pending, { metric: "pending" });
-    //       result.observe(stats.duration, { metric: "duration_ms" });
-    //     });
-    // });
+    runner.on(EVENT_TEST_END, (test) => {
+      // FIX: TEST_END never really called.
+      console.log("EVENT_TEST_END");
+      testDurationHistogram.record(test.duration, {
+        suite: test.parent.title,
+        test: test.title,
+      });
+      testCounter.add(1);
+    });
   }
 }
 

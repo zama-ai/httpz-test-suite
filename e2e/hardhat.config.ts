@@ -73,7 +73,13 @@ const config: HardhatUserConfig = {
   mocha: {
     timeout: 500000,
     reporter: './instrument-tests/otel-reporter.js',
-    require: ['./instrument-tests/otel-setup.js'],
+    // Probably never launched because of discrepency
+    // https://github.com/mochajs/mocha/issues/5006
+    // TODO: look at Hardhat use of Mocha to validate that this is the issue
+    // require: ['./instrument-tests/otel-setup'],
+    //
+    // https://mochajs.org/#run-cycle-overview
+    parallel: false,
   },
   gasReporter: {
     currency: "USD",

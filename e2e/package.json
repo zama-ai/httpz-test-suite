@@ -47,7 +47,7 @@
     "fhevmjs": "^0.6.0-18",
     "fs-extra": "^10.1.0",
     "globals": "^15.9.0",
-    "hardhat": "^2.22.8",
+    "hardhat": "^2.22.18",
     "hardhat-deploy": "^0.12.4",
     "hardhat-gas-reporter": "^1.0.9",
     "hardhat-ignore-warnings": "^0.2.11",
