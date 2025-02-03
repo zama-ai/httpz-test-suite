@@ -2,7 +2,7 @@
 const opentelemetry = require("@opentelemetry/api");
 const { Resource } = require("@opentelemetry/resources");
 const { NodeSDK } = require("@opentelemetry/sdk-node");
-const { ConsoleSpanExporter } = require("@opentelemetry/sdk-trace-node");
+const { ConsoleSpanExporter, BatchSpanProcessor } = require("@opentelemetry/sdk-trace-node");
 const { getNodeAutoInstrumentations } = require("@opentelemetry/auto-instrumentations-node");
 const { PeriodicExportingMetricReader, ConsoleMetricExporter, MeterProvider } = require("@opentelemetry/sdk-metrics");
 // Using HTTP OTLP exporter implies that we target port 4318 (port 4317 is gRPC by default)
@@ -197,31 +197,32 @@ if (otel_console) {
   metric_exporter = new OTLPMetricExporter();
 }
 
+const span_processor = new BatchSpanProcessor(trace_exporter);
 const metric_reader = new PeriodicExportingMetricReader({
   exporter: metric_exporter,
-
   // Default is 60000ms (60 seconds). Set to 10 seconds for demonstrative purposes only.
   exportIntervalMillis: 60000,
 });
 
-const myServiceMeterProvider = new MeterProvider({
+const meter_provider = new MeterProvider({
   resource: resource,
   readers: [metric_reader],
 });
 
 // Set this MeterProvider to be global to the app being instrumented.
-opentelemetry.metrics.setGlobalMeterProvider(myServiceMeterProvider);
+opentelemetry.metrics.setGlobalMeterProvider(meter_provider);
 
 // NOTE: maybe we could set multiple exporters using:
 // https://github.com/open-telemetry/opentelemetry-js/issues/4881
 const sdk = new NodeSDK({
   resource: resource,
+  spanProcessor: span_processor,
   traceExporter: trace_exporter,
   metricReader: metric_reader,
   instrumentations: [
     // Automatic Node instrumentation (HTTP, ...)
-    getNodeAutoInstrumentations(),
-    new MochaInstrumentation(),
+    // getNodeAutoInstrumentations(),
+    // new MochaInstrumentation(),
   ],
 });
 
