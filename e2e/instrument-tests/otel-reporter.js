@@ -4,10 +4,13 @@
 const opentelemetry = require("@opentelemetry/api");
 const { NodeTracerProvider } = require("@opentelemetry/sdk-trace-node");
 const { ProxyTracerProvider } = require("@opentelemetry/api");
+const pino = require("pino");
+const logger = pino();
 
 // Mocha
 const Mocha = require("mocha");
 
+// All available hooks from Mocha
 // readonly EVENT_HOOK_BEGIN: "hook";
 // readonly EVENT_HOOK_END: "hook end";
 // readonly EVENT_RUN_BEGIN: "start";
@@ -34,10 +37,10 @@ const {
   EVENT_TEST_BEGIN,
   EVENT_TEST_PASS,
   EVENT_TEST_FAIL,
-  STATE_STOPPED,
 } = Mocha.Runner.constants;
 
 const version = "0.1.0";
+const name = "mocha-reporter";
 
 // RUN -> SUITE -> TEST
 // Create custom Mocha reporter that handles metrics
@@ -51,12 +54,14 @@ class OTelReporter {
     // but for the way Hardhat leverages Mocha makes it so that required
     // scripts are not actually called.
     // https://github.com/mochajs/mocha/issues/5006
-    const sdk = require("./otel-setup.js");
+    const { sdk, trace_exporter, metric_exporter, tracer_provider, meter_provider } = require("./otel-setup.js");
 
     // Init meter and tracer
-    const name = "mocha-reporter";
     const meter = opentelemetry.metrics.getMeter(name, version);
     const tracer = opentelemetry.trace.getTracer(name, version);
+
+    console.log(meter);
+    console.log(tracer);
 
     // Create counters and histograms
     const testCounter = meter.createCounter("test.total", {
@@ -75,16 +80,17 @@ class OTelReporter {
 
     // Run
     runner.on(EVENT_RUN_BEGIN, () => {
-      console.log("EVENT_RUN_BEGIN");
+      // console.log("EVENT_RUN_BEGIN");
       const active_ctx = opentelemetry.context.active();
       // const active_span = opentelemetry.trace.getSpan(ctx);
       // const ctx = opentelemetry.trace.setSpan(active_ctx, active_span);
+      console.log("Starting span");
       run_span = tracer.startSpan("run-span", undefined, active_ctx);
       console.log("run span begin");
     });
 
     runner.on(EVENT_RUN_END, () => {
-      console.log("EVENT_RUN_END");
+      // console.log("EVENT_RUN_END");
       // Setup summary Gauge
       meter
         .createObservableGauge("test.summary", {
@@ -98,63 +104,75 @@ class OTelReporter {
         });
 
       if (run_span) {
-        console.log("run span end");
-        run_span.end();
+        try {
+          run_span.end();
+        } catch {
+          console.error("Couldn't end span");
+        }
       }
 
-      console.debug("Flushing everything.");
-      // Flush everything
+      // Flush metrics
       // Indeed since we are not a permanently running server we need to make sure
-      // that metrics and traces are pushed properly.
-      const meter_provider = opentelemetry.metrics.getMeterProvider();
+      // that metrics are flushed properly.
+      // const meter_provider = opentelemetry.metrics.getMeterProvider();
       meter_provider.forceFlush();
 
+      // Flush traces
+      tracer_provider.forceFlush();
       // NOTE: tracer_provider doesn't provide a `forceFlush` API
       // per https://github.com/open-telemetry/opentelemetry-js/issues/3310
       // even though included in the spec: https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/sdk.md#forceflush
-      const tracer_provider = opentelemetry.trace.getTracerProvider();
+      // NOTE: For some reason these are particularly important
+      //
+      // const tracer_provider = opentelemetry.trace.getTracerProvider();
+      // trace_exporter.forceFlush(); // NOTE: trace exporter doesn't implement `forceFlush`
 
-      if (tracer_provider instanceof NodeTracerProvider) {
-        tracer_provider.shutdown();
-      } else {
-        if (tracer_provider instanceof ProxyTracerProvider) {
-          const delegateProvider = tracer_provider.getDelegate();
-          if (delegateProvider instanceof NodeTracerProvider) {
-            delegateProvider.shutdown();
-          } else {
-            console.error("Delegate provider couldn't be manually shutdown.");
-            console.error(delegateProvider);
-          }
-        } else {
-          console.error("Trace provider couldn't be manually shutdown.");
-          console.error(tracer_provider);
-        }
-      }
+      metric_exporter.forceFlush();
+      console.log("Metric exporter flushed");
+
+      // //Shutdown tracer provider
+      // if (tracer_provider instanceof NodeTracerProvider) {
+      //   tracer_provider.shutdown();
+      // } else {
+      //   if (tracer_provider instanceof ProxyTracerProvider) {
+      //     const delegateProvider = tracer_provider.getDelegate();
+      //     delegateProvider.shutdown();
+      //   } else {
+      //     console.error("Trace provider couldn't be manually shutdown.");
+      //     console.error(tracer_provider);
+      //   }
+      // }
+      //
+
+      //Shutdown SDK
       sdk.shutdown().then(
         () => console.log("Telemetry shut down successfully"),
-        () => console.error("Telemetry shut down failed"),
+        (reason) => {
+          console.error("Telemetry shut down failed");
+          console.error(reason);
+        },
       );
     });
     // Suite
     runner.on(EVENT_SUITE_BEGIN, (suite) => {
-      console.log("EVENT_SUITE_BEGIN");
-      console.log(suite);
+      // console.log("EVENT_SUITE_BEGIN");
+      // console.log(suite);
     });
 
     runner.on(EVENT_SUITE_END, (suite) => {
-      console.log("EVENT_SUITE_END");
-      console.log(suite);
+      // console.log("EVENT_SUITE_END");
+      // console.log(suite);
     });
 
     // Test
     runner.on(EVENT_TEST_BEGIN, (test) => {
-      console.log("EVENT_TEST_BEGIN");
-      console.log(test);
+      // console.log("EVENT_TEST_BEGIN");
+      // console.log(test);
     });
 
     runner.on(EVENT_TEST_PASS, (test) => {
-      console.log("EVENT_TEST_PASS");
-      console.log(test);
+      // console.log("EVENT_TEST_PASS");
+      // console.log(test);
 
       if (run_span) {
         run_span.addEvent("test passed", {
@@ -164,6 +182,7 @@ class OTelReporter {
           duration: test.duration,
         });
       }
+
       testResultCounter.add(1, { result: "pass", name: test.title, suite: test.parent.title });
       testDurationHistogram.record(test.duration, {
         suite: test.parent.title,

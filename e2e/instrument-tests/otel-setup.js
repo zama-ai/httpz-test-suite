@@ -1,7 +1,9 @@
 // Require dependencies
+const { LoggerProvider, BatchLogRecordProcessor } = require("@opentelemetry/sdk-logs");
+const { OTLPLogExporter } = require("@opentelemetry/exporter-logs-otlp-http");
 const opentelemetry = require("@opentelemetry/api");
 const { Resource } = require("@opentelemetry/resources");
-const { NodeSDK } = require("@opentelemetry/sdk-node");
+const { NodeSDK, logs } = require("@opentelemetry/sdk-node");
 const { ConsoleSpanExporter, BatchSpanProcessor } = require("@opentelemetry/sdk-trace-node");
 const { getNodeAutoInstrumentations } = require("@opentelemetry/auto-instrumentations-node");
 const { PeriodicExportingMetricReader, ConsoleMetricExporter, MeterProvider } = require("@opentelemetry/sdk-metrics");
@@ -11,6 +13,7 @@ const { OTLPTraceExporter } = require("@opentelemetry/exporter-trace-otlp-http")
 const { ATTR_SERVICE_NAME } = require("@opentelemetry/semantic-conventions");
 const { diag, DiagConsoleLogger, DiagLogLevel, trace, context } = require("@opentelemetry/api");
 const { InstrumentationBase } = require("@opentelemetry/instrumentation");
+const { NodeTracerProvider } = require("@opentelemetry/sdk-trace-node");
 
 // https://mochajs.org/#run-cycle-overview
 
@@ -170,6 +173,36 @@ class MochaInstrumentation extends InstrumentationBase {
   }
 }
 
+class CustomMetricExporter extends OTLPMetricExporter {
+  async export(data, callback) {
+    const span = this.tracer.startSpan("exportData");
+    try {
+      super.export(data, (result) => {
+        console.error(result);
+      });
+      // Simulate successful data export
+      console.log(`Data exported successfully to ${this.url}.`);
+      span.setStatus({ code: 0 }); // OK
+    } catch (error) {
+      span.setStatus({ code: 2, message: error.message }); // Error
+      this.handleError(error);
+    } finally {
+      span.end();
+    }
+  }
+
+  handleError(error) {
+    console.error(`Error occurred: ${error.message}`);
+    if (this.errorCallback) {
+      this.errorCallback(error);
+    }
+  }
+
+  errorCallback(error) {
+    console.error(error);
+  }
+}
+
 // Resource
 const resource = Resource.default().merge(
   new Resource({
@@ -186,16 +219,24 @@ if (process.env.OTEL_TARGET == "CONSOLE") {
 // Define exporters
 let trace_exporter;
 let metric_exporter;
+// let logs_exporter;
 
 if (otel_console) {
   console.log("Exporting to console.");
   trace_exporter = new ConsoleSpanExporter();
   metric_exporter = new ConsoleMetricExporter();
+  // logs_exporter = new logs.ConsoleLogRecordExporter();
 } else {
   console.log("Exporting to OTL.");
   trace_exporter = new OTLPTraceExporter();
   metric_exporter = new OTLPMetricExporter();
+  // logs_exporter = new OTLPLogExporter();
 }
+
+metric_exporter.forceFlush();
+
+console.log(metric_exporter);
+console.log(trace_exporter);
 
 const span_processor = new BatchSpanProcessor(trace_exporter);
 const metric_reader = new PeriodicExportingMetricReader({
@@ -204,13 +245,16 @@ const metric_reader = new PeriodicExportingMetricReader({
   exportIntervalMillis: 60000,
 });
 
+// Provider vs SDK?
+
 const meter_provider = new MeterProvider({
   resource: resource,
   readers: [metric_reader],
 });
 
 // Set this MeterProvider to be global to the app being instrumented.
-opentelemetry.metrics.setGlobalMeterProvider(meter_provider);
+const tracer_provider = new NodeTracerProvider();
+tracer_provider.addSpanProcessor(span_processor);
 
 // NOTE: maybe we could set multiple exporters using:
 // https://github.com/open-telemetry/opentelemetry-js/issues/4881
@@ -219,15 +263,18 @@ const sdk = new NodeSDK({
   spanProcessor: span_processor,
   traceExporter: trace_exporter,
   metricReader: metric_reader,
+  // logRecordProcessor: new BatchLogRecordProcessor(logs_exporter),
   instrumentations: [
     // Automatic Node instrumentation (HTTP, ...)
-    // getNodeAutoInstrumentations(),
-    // new MochaInstrumentation(),
+    getNodeAutoInstrumentations(),
+    new MochaInstrumentation(),
   ],
 });
+sdk.configureTracerProvider(tracer_provider);
+sdk.configureMeterProvider(meter_provider);
 
 sdk.start();
 
 console.log("Open-Telemetry SDK Started.");
 
-module.exports = sdk;
+module.exports = { sdk, trace_exporter, metric_exporter };
