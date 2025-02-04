@@ -2,10 +2,14 @@
 
 // ############# IMPORTS ###########################
 const opentelemetry = require("@opentelemetry/api");
-const { NodeTracerProvider } = require("@opentelemetry/sdk-trace-node");
-const { ProxyTracerProvider } = require("@opentelemetry/api");
-const pino = require("pino");
-const logger = pino();
+const { ATTR_SERVICE_NAME } = require("@opentelemetry/semantic-conventions");
+const { diag, DiagConsoleLogger, DiagLogLevel } = require("@opentelemetry/api");
+const { Resource } = require("@opentelemetry/resources");
+
+// Metrics
+const { OTLPMetricExporter } = require("@opentelemetry/exporter-metrics-otlp-http");
+const { PeriodicExportingMetricReader } = require("@opentelemetry/sdk-metrics");
+const { MeterProvider } = require("@opentelemetry/sdk-metrics");
 
 // Mocha
 const Mocha = require("mocha");
@@ -42,31 +46,53 @@ const {
 const version = "0.1.0";
 const name = "mocha-reporter";
 
+// https://mochajs.org/#run-cycle-overview
 // RUN -> SUITE -> TEST
-// Create custom Mocha reporter that handles metrics
+// Create custom Mocha reporter that add open-telemetry metrics
 
 class OTelReporter {
   constructor(runner) {
     // Mocha runner statistics
     const stats = runner.stats;
 
+    diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
     // NOTE: in theory the following script should be set as a `--require`
     // but for the way Hardhat leverages Mocha makes it so that required
     // scripts are not actually called.
     // https://github.com/mochajs/mocha/issues/5006
-    const { sdk, trace_exporter, metric_exporter, tracer_provider, meter_provider } = require("./otel-setup.js");
+    // Resource
+    const resource = Resource.default().merge(
+      new Resource({
+        [ATTR_SERVICE_NAME]: "e2e-tests",
+      }),
+    );
+
+    // Define exporter
+    const metric_exporter = new OTLPMetricExporter();
+    // const metric_exporter = new ConsoleMetricExporter();
+
+    // Define reader and provider
+    const metric_reader = new PeriodicExportingMetricReader({
+      exporter: metric_exporter,
+      // Default is 60000ms (60 seconds). Set to 10ms since we don't want to hold the process for ever
+      exportIntervalMillis: 10,
+    });
+
+    const meter_provider = new MeterProvider({
+      resource: resource,
+      readers: [metric_reader],
+    });
+
+    opentelemetry.metrics.setGlobalMeterProvider(meter_provider);
 
     // Init meter and tracer
     const meter = opentelemetry.metrics.getMeter(name, version);
-    const tracer = opentelemetry.trace.getTracer(name, version);
-
-    console.log(meter);
-    console.log(tracer);
 
     // Create counters and histograms
     const testCounter = meter.createCounter("test.total", {
       description: "Total number of tests run",
     });
+
     const testDurationHistogram = meter.createHistogram("test.duration", {
       description: "Test execution duration",
       unit: "ms",
@@ -75,22 +101,10 @@ class OTelReporter {
       description: "Test results by status",
     });
 
-    let run_span = null;
-    // TODO: Insert here the instrumentation of Mocha functions
-
     // Run
-    runner.on(EVENT_RUN_BEGIN, () => {
-      // console.log("EVENT_RUN_BEGIN");
-      const active_ctx = opentelemetry.context.active();
-      // const active_span = opentelemetry.trace.getSpan(ctx);
-      // const ctx = opentelemetry.trace.setSpan(active_ctx, active_span);
-      console.log("Starting span");
-      run_span = tracer.startSpan("run-span", undefined, active_ctx);
-      console.log("run span begin");
-    });
+    runner.on(EVENT_RUN_BEGIN, () => {});
 
     runner.on(EVENT_RUN_END, () => {
-      // console.log("EVENT_RUN_END");
       // Setup summary Gauge
       meter
         .createObservableGauge("test.summary", {
@@ -102,87 +116,36 @@ class OTelReporter {
           result.observe(stats.pending, { metric: "pending" });
           result.observe(stats.duration, { metric: "duration_ms" });
         });
-
-      if (run_span) {
-        try {
-          run_span.end();
-        } catch {
-          console.error("Couldn't end span");
-        }
+      function sleep(ms) {
+        return new Promise((resolve) => {
+          setTimeout(resolve, ms);
+        });
       }
+      sleep(100);
 
-      // Flush metrics
-      // Indeed since we are not a permanently running server we need to make sure
-      // that metrics are flushed properly.
-      // const meter_provider = opentelemetry.metrics.getMeterProvider();
-      meter_provider.forceFlush();
-
-      // Flush traces
-      tracer_provider.forceFlush();
-      // NOTE: tracer_provider doesn't provide a `forceFlush` API
-      // per https://github.com/open-telemetry/opentelemetry-js/issues/3310
-      // even though included in the spec: https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/sdk.md#forceflush
-      // NOTE: For some reason these are particularly important
-      //
-      // const tracer_provider = opentelemetry.trace.getTracerProvider();
-      // trace_exporter.forceFlush(); // NOTE: trace exporter doesn't implement `forceFlush`
-
-      metric_exporter.forceFlush();
-      console.log("Metric exporter flushed");
-
-      // //Shutdown tracer provider
-      // if (tracer_provider instanceof NodeTracerProvider) {
-      //   tracer_provider.shutdown();
-      // } else {
-      //   if (tracer_provider instanceof ProxyTracerProvider) {
-      //     const delegateProvider = tracer_provider.getDelegate();
-      //     delegateProvider.shutdown();
-      //   } else {
-      //     console.error("Trace provider couldn't be manually shutdown.");
-      //     console.error(tracer_provider);
-      //   }
-      // }
-      //
-
-      //Shutdown SDK
-      sdk.shutdown().then(
-        () => console.log("Telemetry shut down successfully"),
+      // NOTE: https://github.com/open-telemetry/opentelemetry-specification/issues/2983
+      metric_reader.collect();
+      metric_reader.forceFlush();
+      metric_exporter.forceFlush().then(
+        () => {
+          console.log("Metric exporter force flush success");
+        },
         (reason) => {
-          console.error("Telemetry shut down failed");
+          console.log("Metric exporter force flush failed.");
           console.error(reason);
         },
       );
+      sleep(100);
     });
     // Suite
-    runner.on(EVENT_SUITE_BEGIN, (suite) => {
-      // console.log("EVENT_SUITE_BEGIN");
-      // console.log(suite);
-    });
+    runner.on(EVENT_SUITE_BEGIN, (suite) => {});
 
-    runner.on(EVENT_SUITE_END, (suite) => {
-      // console.log("EVENT_SUITE_END");
-      // console.log(suite);
-    });
+    runner.on(EVENT_SUITE_END, (suite) => {});
 
     // Test
-    runner.on(EVENT_TEST_BEGIN, (test) => {
-      // console.log("EVENT_TEST_BEGIN");
-      // console.log(test);
-    });
+    runner.on(EVENT_TEST_BEGIN, (test) => {});
 
     runner.on(EVENT_TEST_PASS, (test) => {
-      // console.log("EVENT_TEST_PASS");
-      // console.log(test);
-
-      if (run_span) {
-        run_span.addEvent("test passed", {
-          result: "pass",
-          name: test.title,
-          suite: test.parent.title,
-          duration: test.duration,
-        });
-      }
-
       testResultCounter.add(1, { result: "pass", name: test.title, suite: test.parent.title });
       testDurationHistogram.record(test.duration, {
         suite: test.parent.title,
@@ -192,12 +155,9 @@ class OTelReporter {
     });
 
     runner.on(EVENT_TEST_FAIL, (test) => {
-      console.log("EVENT_TEST_FAIL");
-      console.log(test);
       testResultCounter.add(1, { result: "fail", name: test.title, suite: test.parent.title });
       testCounter.add(1);
     });
-    // NOTE: it looks like TEST_END is never actually called.
   }
 }
 
