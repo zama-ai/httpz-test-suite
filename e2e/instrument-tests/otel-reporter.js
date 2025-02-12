@@ -111,25 +111,36 @@ class OTelReporter {
           result.observe(stats.pending, { metric: "pending" });
           result.observe(stats.duration, { metric: "duration_ms" });
         });
+
       function sleep(ms) {
         return new Promise((resolve) => {
           setTimeout(resolve, ms);
         });
       }
-      sleep(100);
 
-      // NOTE: https://github.com/open-telemetry/opentelemetry-specification/issues/2983
-      metric_reader.collect();
-      metric_reader.forceFlush();
-      metric_exporter.forceFlush().then(
-        () => {
-          console.log("Metric exporter force flush success");
-        },
-        (reason) => {
-          console.log("Metric exporter force flush failed.");
-          console.error(reason);
-        },
-      );
+      sleep(100);
+      metric_reader
+        .forceFlush()
+        .then(() => {
+          console.log("Metric reader force flush success");
+        })
+        .finally(
+          () => {
+            metric_exporter.forceFlush().then(
+              () => {
+                console.log("Metric exporter force flush success");
+              },
+              (reason) => {
+                console.log("Metric exporter force flush failed.");
+                console.error(reason);
+              },
+            );
+          },
+          (reason) => {
+            console.log("Metric reader force flush failed.");
+            console.error(reason);
+          },
+        );
       sleep(100);
     });
     // Suite
@@ -142,11 +153,11 @@ class OTelReporter {
 
     runner.on(EVENT_TEST_PASS, (test) => {
       testResultCounter.add(1, { result: "pass", name: test.title, suite: test.parent.title });
+      testCounter.add(1);
       testDurationHistogram.record(test.duration, {
         suite: test.parent.title,
         test: test.title,
       });
-      testCounter.add(1);
     });
 
     runner.on(EVENT_TEST_FAIL, (test) => {
