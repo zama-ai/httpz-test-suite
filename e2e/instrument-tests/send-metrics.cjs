@@ -1,5 +1,5 @@
-import { readFileSync } from "node:fs";
-import { pushMetrics } from "prometheus-remote-write";
+const readFileSync = require("node:fs").readFileSync;
+const pushMetrics = require("prometheus-remote-write").pushMetrics;
 
 function loadMetrics(file_path) {
   try {
@@ -37,9 +37,10 @@ for (const test of metrics.prometheusMetrics.tests) {
     // suite: test.suite,
   };
 
-  let metrics_result = await pushMetrics(prom_metrics, {
+  let metrics_result = pushMetrics(prom_metrics, {
     url: process.env.PROMETHEUS_REMOTE_WRITE_ENDPOINT || "http://localhost:9090/api/v1/write",
     labels: labels,
+  }).then(()=>{
+  console.log("metric pushed");
   });
-  console.log(metrics_result);
 }
