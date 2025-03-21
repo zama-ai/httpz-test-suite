@@ -1,9 +1,12 @@
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import dotenv from "dotenv";
+import fetchRetry from "fetch-retry";
 import { FhevmInstance, createInstance as createFhevmInstance } from "fhevmjs/node";
 import * as fs from "fs";
 import { network } from "hardhat";
 import { NetworkConfig } from "hardhat/types";
+
+global.fetch = fetchRetry(fetch, { retries: 5, retryDelay: 500 });
 
 const parsedEnv = dotenv.parse(fs.readFileSync(".env"));
 
