@@ -9,6 +9,8 @@ mode = "threshold"
 # api url binding
 api_url = "0.0.0.0:7077"
 
+state_path = "./gw_state/.GW_STATE"
+
 # Ethereum Settings
 # Configuration settings related to the Ethereum network and smart contract event interactions.
 [ethereum]
@@ -99,12 +101,13 @@ factor = 1000 # in milliseconds
 [kms]
 # Address of the KMS smart contract on the blockchain.
 # Used for interactions with the KMS contract.
-contract_address = "wasm1cnuw3f076wgdyahssdkd0g3nr96ckq8cwa2mh029fn5mgf2fmcms9ax00l"
+asc_address = "wasm18v47nqmhvejx3vc498pantg8vr435xa0rt6x0m6kzhp6yuqmcp8s9jfa9t" # Deployed ASC
+csc_address = "wasm14hj2tavq8fpesdwxxcu44rty3hh90vhujrvcmstl4zr3txmfvw9s0phg4d"
 
 # Mnemonic phrase for accessing the KMS.
 # This is a human-readable string of words used to derive cryptographic keys.
 # It should be kept secure and private.
-mnemonic = "bachelor similar spirit copper rely carbon web hobby conduct wrap conduct wire shine parrot erosion divert crucial balance lock reason price ignore educate open"
+mnemonic = "whisper stereo great helmet during hollow nominee skate frown daughter donor pool ozone few find risk cigar practice essay sketch rhythm novel dumb host"
 
 # Base URL of the KMS service.
 # Used for making HTTP requests to the KMS service.
@@ -114,17 +117,14 @@ address = "http://kms-blockchain-validator:9090"
 # Should be removed as part of https://github.com/zama-ai/fhevm/issues/548
 # Key ID used within the KMS.
 # Identifies the specific key to be used for cryptographic operations within the KMS.
-key_id = "4de8f079b1d345c9ed341c400e90fec9edd15775"
-crs_id = "9f58f0b3b8cabd4df89e38f27243b4c6b66f4162"
+key_id = "cd6a2f09e9c240d14015654d32e758bb7d513efd"
+crs_id = "5ef4096619e96b7428e1fd2175778b99e11de728"
 
 
 # List of prefixed of URL endpoints for the public storage of the KMS.
 # The key in the map is the MPC ID of the party. I.e. [1; amount of parties]
-[kms.public_storage]
-1 = "http://localhost:9000/kms/PUB-p1"
-2 = "http://localhost:9000/kms/PUB-p2"
-3 = "http://localhost:9000/kms/PUB-p3"
-4 = "http://localhost:9000/kms/PUB-p4"
+# This part has moved to coprocessor/blockchain/scripts/deploy_contracts.sh
+
 
 
 

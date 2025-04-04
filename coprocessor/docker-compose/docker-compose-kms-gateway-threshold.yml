@@ -32,7 +32,7 @@ services:
       setup-kms-key-crs:
         condition: service_completed_successfully
 
-    image: ghcr.io/zama-ai/kms-blockchain-gateway-dev:${DOCKER_IMAGES_TAG}
+    image: ghcr.io/zama-ai/kms-blockchain-gateway:${DOCKER_IMAGES_TAG}
     build:
       context: .
       dockerfile: blockchain/gateway/operations/docker/dev.dockerfile
@@ -45,6 +45,8 @@ services:
       - ../blockchain/gateway/config/gateway_threshold.toml:/app/gateway/config/gateway.toml
       - ../scripts/update_key_crs_id.sh:/app/gateway/update_key_crs_id.sh
       - setup_kms_key_crs_logs:/app/logs_keygen:ro
+      - ../gw_state/:/app/gateway/gw_state/
+
     environment:
       - RUST_BACKTRACE=1
     # TODO: Validate that we have a status endpoint on the gateway

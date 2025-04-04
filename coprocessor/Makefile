@@ -265,7 +265,7 @@ restart-kv:
     -f docker-compose/docker-compose-kms-threshold.yml \
     -f docker-compose/docker-compose-kms-gateway-threshold.yml \
     -f docker-compose/docker-compose-fhevm-coprocessor.yml \
-    up -d --no-deps dev-kv-store
+    up -d --no-deps kms-kv-store
 
 
 restart-coproc:
@@ -283,5 +283,5 @@ restart-gw:
     -f docker-compose/docker-compose-kms-threshold.yml \
     -f docker-compose/docker-compose-kms-gateway-threshold.yml \
     -f docker-compose/docker-compose-fhevm-coprocessor.yml \
-    up -d --no-deps dev-kms-gateway
+    up -d --no-deps gateway
 
