@@ -29,10 +29,10 @@ export type CreateDecrypt = (
 export const createDecrypt: CreateDecrypt = (instance, signer, contractAddresses) => async (handles) => {
   const { publicKey: publicKeyAlice, privateKey: privateKeyAlice } = instance.generateKeypair();
   const startTimestamp = Date.now();
-  const eip712 = instance.createEIP712(publicKeyAlice, contractAddresses, parsedEnv.HOST_CHAIN_ID, startTimestamp, 365);
+  const eip712 = instance.createEIP712(publicKeyAlice, contractAddresses, startTimestamp, 365);
   const signatureAlice = await signer.signTypedData(
     eip712.domain,
-    { Reencrypt: eip712.types.Reencrypt },
+    { UserDecryptRequestVerification: eip712.types.UserDecryptRequestVerification },
     eip712.message,
   );
 
@@ -43,7 +43,7 @@ export const createDecrypt: CreateDecrypt = (instance, signer, contractAddresses
     signatureAlice.replace("0x", ""),
     contractAddresses,
     signer.address,
-    BigInt(startTimestamp),
-    BigInt(365),
+    startTimestamp,
+    365,
   );
 };
