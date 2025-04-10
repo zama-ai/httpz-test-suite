@@ -1,0 +1,4 @@
+backup
+**.bak
+**/.env.*.local
+**/config/**/*.yaml.local
