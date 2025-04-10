@@ -20,9 +20,12 @@ log_error() {
 }
 
 ## GATEWAY - KMS_SIGNER_ADDRESS_0
-BASE_URL="http://minio:9000/kms-public/PUB/VerfAddress"
-ENV_HOST="/env.staging.host"
-ENV_GATEWAY="/env.staging.gateway"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+BASE_URL="http://localhost:9000/kms-public/PUB/VerfAddress"
+ENV_HOST="${SCRIPT_DIR}/../env/staging/.env.host.local"
+ENV_GATEWAY="${SCRIPT_DIR}/../env/staging/.env.gateway.local"
+ENV_COPROCESSOR="${SCRIPT_DIR}/../env/staging/.env.coprocessor.local"
+LOCAL_YAML="${SCRIPT_DIR}/../config/relayer/local.yaml.local"
 KEY_SIGNER_ID=$(docker logs kms-core | grep "Successfully stored public server signing key under the handle" | sed 's/.*handle \([^ ]*\).*/\1/')
 SIGNER_ADDRESS_URL="$BASE_URL/$KEY_SIGNER_ID"
 
@@ -63,9 +66,6 @@ else
     log_warn "Failed to update KMS_SIGNER_ADDRESS_0. Please update manually in $ENV_GATEWAY"
     log_info "The value that should be set: $SIGNER_ADDRESS"
 fi
-
-LOCAL_YAML="/relayer-local.yaml"
-ENV_COPROCESSOR="/env.staging.coprocessor"
 
 if ! docker ps -a | grep -q "httpz-generate-fhe-keys"; then
     log_error "Container httpz-generate-fhe-keys not found. Make sure it has been run."

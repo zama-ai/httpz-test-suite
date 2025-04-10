@@ -50,26 +50,6 @@ services:
       kms-core:
         condition: service_started
 
-  update-kms-keys:
-    container_name: httpz-update-kms-keys
-    image: docker:cli
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ../config/relayer/local.yaml.local:/relayer-local.yaml
-      - ../env/staging/.env.coprocessor.local:/env.staging.coprocessor
-      - ../env/staging/.env.host.local:/env.staging.host
-      - ../env/staging/.env.gateway.local:/env.staging.gateway
-      - ../scripts/update-kms-keys.sh:/update-kms-keys.sh
-    command: 
-      - /bin/sh
-      - -c
-      - |
-        set -e
-        apk add --no-cache bash grep sed curl && /bin/bash /update-kms-keys.sh
-    depends_on:
-      generate-fhe-keys:
-        condition: service_completed_successfully
-
 volumes:
   httpz_minio_secrets:
     external: true

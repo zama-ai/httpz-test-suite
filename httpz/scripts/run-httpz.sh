@@ -207,8 +207,9 @@ run_compose "minio" "MinIO Services" \
 
 run_compose "core" "Core Services" \
     "kms-core:running" \
-    "${PROJECT}-generate-fhe-keys:complete" \
-    "${PROJECT}-update-kms-keys:complete"
+    "${PROJECT}-generate-fhe-keys:complete"
+
+"${SCRIPT_DIR}/update-kms-keys.sh"
 
 run_compose "gateway" "Gateway Network Services" \
     "${PROJECT}-gateway-node:running" \
