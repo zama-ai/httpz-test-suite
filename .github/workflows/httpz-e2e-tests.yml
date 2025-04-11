@@ -64,7 +64,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.BLOCKCHAIN_ACTIONS_TOKEN }}
+          password: ${{ secrets.GHCR_READ_TOKEN }}
 
       - name: Deploy HTTPZ Stack
         working-directory: httpz
