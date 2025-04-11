@@ -36,8 +36,8 @@ case $COMMAND in
   deploy)
     echo "Deploying HTTPZ stack..."
     echo "Using component versions:"
-    echo "  Core: ${CORE_VERSION}"
-    echo "  Connector: ${CONNECTOR_VERSION}"
+    echo "  CORE: ${CORE_VERSION}"
+    echo "  CONNECTOR: ${CONNECTOR_VERSION}"
     echo "  COPROCESSOR: ${COPROCESSOR_VERSION}"
     echo "  GATEWAY: ${GATEWAY_VERSION}"
     echo "  HOST: ${HOST_VERSION}"

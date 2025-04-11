@@ -39,6 +39,9 @@ on:
         default: 'v0.1.0-rc4'
         type: string
   pull_request:
+    paths:
+      - '.github/workflows/httpz-e2e-tests.yml'
+      - 'httpz/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
