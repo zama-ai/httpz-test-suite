@@ -99,16 +99,16 @@ jobs:
         working-directory: httpz
         run: |
               ./httpz-cli test user-decryption
-
-      - name: ERC20 test
-        working-directory: httpz
-        run: |
-              ./httpz-cli test erc20
       
       - name: Public Decryption test
         working-directory: httpz
         run: |
               ./httpz-cli test public-decryption
+    
+      - name: ERC20 test
+        working-directory: httpz
+        run: |
+              ./httpz-cli test erc20
 
       - name: Show logs on test failure
         if: failure() && (steps.input-proof.outcome == 'failure' || steps.user-decryption.outcome == 'failure')
