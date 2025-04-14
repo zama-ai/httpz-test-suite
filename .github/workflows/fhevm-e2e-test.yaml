@@ -1,0 +1,43 @@
+name: "fhEVM E2E test Docker Image"
+
+on:
+  push:
+    branches:
+      - main
+      - 'fhevm/**'
+
+    paths:
+      - .github/workflows/fhevm-e2e-test.yml
+      - .github/workflows/common-docker.yml
+      - e2e/**
+
+concurrency:
+  group: fhevm-e2e-test-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  docker-e2e-test:
+    uses: ./.github/workflows/common-docker.yml
+    permissions:
+      contents: "read"
+      id-token: "write"
+      packages: "write"
+    with:
+      working-directory: "."
+      push_image: true
+      image-name: "fhevm-e2e-test"
+      docker-file: "e2e/Dockerfile"
+      arm-build: true
+
+    secrets:
+      BLOCKCHAIN_ACTIONS_TOKEN: ${{ secrets.BLOCKCHAIN_ACTIONS_TOKEN }}
+      GRAVITON_BUILDER_SSH_PRIVATE_KEY: ${{ secrets.GRAVITON_BUILDER_SSH_PRIVATE_KEY }}
+
+  done:
+    runs-on: ubuntu-latest
+    name: Pipeline Done
+    steps:
+      - name: Success
+        run: echo Pipeline Done
+    needs:
+      - docker-e2e-test
