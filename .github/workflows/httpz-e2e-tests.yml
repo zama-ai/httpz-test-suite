@@ -116,9 +116,12 @@ jobs:
         if: failure() && (steps.input-proof.outcome == 'failure' || steps.user-decryption.outcome == 'failure' || steps.public-decryption.outcome == 'failure' || steps.erc20.outcome == 'failure')
         working-directory: httpz
         run: |
-          echo "::group::Relayer Logs"
-          ./httpz-cli logs relayer
-          echo "::endgroup::"
+              echo "::group::Relayer Logs"
+              ./httpz-cli logs relayer
+              echo "::endgroup::"
+              echo "::group::Transaction Sender Logs (filtered)"
+              ./httpz-cli logs transaction-sender | grep -v "Selected 0 rows to process"
+              echo "::endgroup::"
 
       - name: Cleanup
         working-directory: httpz
