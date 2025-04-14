@@ -99,6 +99,11 @@ jobs:
         working-directory: httpz
         run: |
               ./httpz-cli test user-decryption
+      
+      - name: Public Decryption test
+        working-directory: httpz
+        run: |
+              ./httpz-cli test public-decryption
 
       - name: Show logs on test failure
         if: failure() && (steps.input-proof.outcome == 'failure' || steps.user-decryption.outcome == 'failure')
