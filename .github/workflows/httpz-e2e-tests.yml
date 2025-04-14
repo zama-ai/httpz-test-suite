@@ -101,17 +101,19 @@ jobs:
               ./httpz-cli test user-decryption
       
       - name: Public Decryption test
+        id: public-decryption
         working-directory: httpz
         run: |
               ./httpz-cli test public-decryption
-    
+
       - name: ERC20 test
+        id: erc20
         working-directory: httpz
         run: |
               ./httpz-cli test erc20
 
       - name: Show logs on test failure
-        if: failure() && (steps.input-proof.outcome == 'failure' || steps.user-decryption.outcome == 'failure')
+        if: failure() && (steps.input-proof.outcome == 'failure' || steps.user-decryption.outcome == 'failure' || steps.public-decryption.outcome == 'failure' || steps.erc20.outcome == 'failure')
         working-directory: httpz
         run: |
           echo "::group::Relayer Logs"
