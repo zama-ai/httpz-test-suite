@@ -59,7 +59,7 @@ jobs:
       id-token: "write"
       packages: "read"
 
-    runs-on: large_ubuntu_16
+    runs-on: large_ubuntu_32
     steps:
       - name: Checkout code
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
