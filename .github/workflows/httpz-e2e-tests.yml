@@ -11,7 +11,7 @@ on:
       connector_version:
         description: 'Connector Version'
         required: false
-        default: '0a71143-prod' # tested img
+        default: '471f516-prod' # tested img
         type: string
       coprocessor_version:
         description: 'Coprocessor Image Version'
