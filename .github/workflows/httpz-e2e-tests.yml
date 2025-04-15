@@ -89,31 +89,26 @@ jobs:
           ./httpz-cli deploy
 
       - name: Input proof test
-        id: input-proof
         working-directory: httpz
         run: |
           ./httpz-cli test input-proof
 
       - name: User Decryption test
-        id: user-decryption
         working-directory: httpz
         run: |
           ./httpz-cli test user-decryption
 
       - name: Public Decryption test euint64
-        id: public-decryption-euint64
         working-directory: httpz
         run: |
           ./httpz-cli test public-decryption
 
       - name: Public Decryption test ebytes256
-        id: public-decryption-ebytes256
         working-directory: httpz
         run: |
           ./httpz-cli test public-decryption-ebytes256
 
       - name: ERC20 test
-        id: erc20
         working-directory: httpz
         continue-on-error: true
         run: |
@@ -121,8 +116,8 @@ jobs:
           echo "IMPORTANT: DO NOT consider this test - ERC20 test needs to be fixed in CI"
 
       - name: Show logs on test failure
-        if: failure() && (steps.input-proof.outcome == 'failure' || steps.user-decryption.outcome == 'failure' || steps.public-decryption.outcome == 'failure' || steps.public-decryption-ebytes256.outcome == 'failure' || steps.erc20.outcome == 'failure')
         working-directory: httpz
+        if: always()
         run: |
           echo "::group::Relayer Logs"
           ./httpz-cli logs relayer
