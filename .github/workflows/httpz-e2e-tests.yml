@@ -16,17 +16,17 @@ on:
       coprocessor_version:
         description: "Coprocessor Image Version"
         required: false
-        default: "cc1710f"
+        default: "cd89550"
         type: string
       db_migration_version:
         description: "Coprocessor DB Migration Image Version"
         required: false
-        default: "v0.7.0-rc4"
+        default: "cd89550"
         type: string
       host_version:
         description: "Host Image Version"
         required: false
-        default: "v0.7.0-rc4"
+        default: "cd89550"
         type: string
       gateway_version:
         description: "Gateway Image Version"
